@@ -32,3 +32,50 @@ struct Parque *abrirParque(char *nombre, char *fecha, int maxCapacidad, int maxZ
   return parqueCreado;
   
 }
+
+
+struct NodoVisitante *crearVisitante(char *rut, char *nombre, float altura, int edad) {
+    
+    struct NodoVisitante *nuevo = NULL;
+  
+    nuevo = (struct NodoVisitante*)malloc(sizeof(struct NodoVisitante));
+    
+    nuevo->visitante = (struct Visitante*)malloc(sizeof(struct Visitante));
+    /* asignación de memoria para el char rut y copia del dato ingresado*/
+    nuevo->visitante->rut = (char*)malloc(strlen(rut) + 1);
+    strcpy(nuevo->visitante->rut, rut);
+     /* asignación de memoria para el char nombre y copia del dato ingresado*/
+    nuevo->visitante->nombre = (char*)malloc(strlen(nombre) + 1);
+    strcpy(nuevo->visitante->nombre, nombre);
+    /* asignaciones de valores según los datos que se ikngresaron*/
+    nuevo->visitante->altura = altura;
+    nuevo->visitante->edad = edad;
+    nuevo->visitante->dentroParque = 0;
+
+    nuevo->visitante->listaEntrada = NULL;
+    nuevo->visitante->familia = NULL;
+    nuevo->izq = NULL;
+    nuevo->der = NULL;
+
+    return nuevo;
+}
+
+struct NodoVisitante *insertarVisitanteArbol(struct NodoVisitante *raiz, struct NodoVisitante *nuevo) {
+    /* creación de variable para realizar las comparaciones y ver si x rut esa mayor o menor para guardarlo correctament*/
+    int aux;
+
+    if (raiz == NULL) {
+        return nuevo;
+    }
+    
+    aux = strcmp(nuevo->visitante->rut, raiz->visitante->rut);
+    /* recursividad para buscar la posición donde debe ir ese visitante*/
+    if (aux < 0) {
+        raiz->izq = insertarVisitanteABB(raiz->izq, nuevo);
+    }else{
+        raiz->der = insertarVisitanteABB(raiz->der, nuevo);
+    } 
+    return raiz;
+}
+
+
