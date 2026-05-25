@@ -78,4 +78,82 @@ struct NodoVisitante *insertarVisitanteArbol(struct NodoVisitante *raiz, struct 
     return raiz;
 }
 
+/* nota (martín): revuisar si era conveniente realmente hacer horarios en char, ya que son muchos malloc*/
+struct Zona *crearZona(int id, char *nombre, char *tematica, char *apertura, char *cierre,int cant_encargados, int maxAtracciones, int maxVisitantes){
+
+  struct Zona *nueva = NULL;
+
+  nueva = (struct zona**)malloc(sizeof(zona*));
+
+  nueva->nombre = (char*)malloc(strlen(nombre)+1);
+
+  strcpy(nueva->nombre, nombre);
+
+  nueva->tematica = (char*)malloc(strlen(tematica)+1);
+
+  strcpy(nueva->tematica, nombre);
+
+  nueva->apertura = (char*)malloc(strlen(apertura)+1);
+
+  strcpy(nueva->apertura, apertura);
+
+  nueva->cierre = (char*)malloc(strlen(cierre)+1);
+
+  strcpy(nueva->cierre, cierre);
+  
+  nueva->idZona = id;
+ 
+  nueva->numEncargados = cant_encargados;
+
+  nueva->capacidadMaxima = maxVisitanes;
+  
+  /* variables para hacer los conteos*/
+  
+  nueva->visitantesActuales = 0;
+  
+  nueva->estadoAforo = 0;
+  
+  /* el plibre*/
+  nueva->cantAtraccion = 0;
+  
+  nueva->arrAtracciones = (struct Atraccion**)malloc(maxAtracciones * sizeof(struct Atraccion*));
+  
+  return nueva;
+}
+
+struct zona *buscarZona(struct Parque *elParque, int idBuscar){
+    int i;
+    if (elParque == NULL){
+        return NULL;
+    }
+    /* recorrido para el arreglo de zonas, utilizando por el id*/
+    for (i = 0; i < elParque->cantZonas; i++){
+        if (elParque->zonas[i]->idZona == idBuscar){
+            return elParque->zonas[i];
+        }
+    }
+    
+    return NULL;
+}
+
+void agregarZona(struct Parque *elParque, struct Zona *nueva, int pLibreZonas){
+    
+    if(elParque == NULL || nueva == NULL){
+      /* quizás sería bueno agregar mensaje de error acá*/
+        return;
+    }
+    
+    /* si es que ya se llegó al máximo de zonas, nos salimos con un return vacío, ya que la función es void, lo mismo en el caso de arriba por si las entradas son NULL*/
+    if(elParque->cantZonas >= maxZonasPermitidas){
+      /* quizás sería bueno agregar mensaje de error acá*/
+        return;
+    }
+    
+    /* en este punto se realiza el agregar y se aumenta el pLibre*/
+    elParque->zonas[elParque->cantZonas] = nueva;
+    
+    elParque->cantZonas++;
+}
+
+
 
