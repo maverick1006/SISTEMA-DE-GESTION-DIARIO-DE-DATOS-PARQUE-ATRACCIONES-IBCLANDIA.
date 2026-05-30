@@ -121,8 +121,9 @@ void listarZonas(struct Parque *parque) {
     }
 }
 
-/* nota (martín): revuisar si era conveniente realmente hacer horarios en char, ya que son muchos malloc*/
-struct Zona *crearZona(int id, char *nombre, char *tematica, char *apertura, char *cierre,int cant_encargados, int maxAtracciones, int maxVisitantes){
+struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int cant_encargados, int maxVisitantes){
+
+  int i;
 
   struct Zona *nueva = NULL;
 
