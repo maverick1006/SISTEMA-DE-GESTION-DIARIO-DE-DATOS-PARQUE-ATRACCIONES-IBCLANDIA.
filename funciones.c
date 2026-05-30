@@ -81,9 +81,48 @@ struct NodoVisitante *insertarVisitanteArbol(struct NodoVisitante *raiz, struct 
     return raiz;
 }
 
-struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int cant_encargados, int maxVisitantes){
+void cambiarEstadoZona(struct Zona *zona) {
+    if (zona ==NULL) return;
 
-  int i;
+    if (zona->visitantesActuales >= zona->capacidadMaxima) {
+        zona->estadoAforo = 1;
+        printf("\nESTA ZONA ESTA EN AFORO MAXIMO\n");
+    }else {
+        zona->estadoAforo = 0;
+        printf("\nESTA ZONA AUN CUENTA CON AFORO\n");
+    }
+}
+
+void mostrarZona(struct Zona *zona) {
+    printf("\nID Zonas: %d", zona->idZona);
+    printf("\nNombre: %s", zona->nombre);
+    printf("\nTematica: %s", zona->tematica);
+    printf("\nVisitantes actuales: %d", zona->visitantesActuales);
+    printf("\nCapacidad maxima: %d", zona->capacidadMaxima);
+
+    if (zona->estadoAforo == 1) {
+        printf("\nEstado Aforo: COMPLETO");
+    }else {
+        printf("\nEstado Aforo: DISPONIBLE");
+    }
+    printf("\nCantidad atracciones: %d", zona->cantAtraccion);
+}
+
+void listarZonas(struct Parque *parque) {
+    int i;
+    struct Zona *zona;
+
+    if (parque == NULL) return;
+    printf("\n========== ZONAS DEL PARQUE ==========\n");
+    for (i = 0; i < parque->cantZonas; i++) {
+        zona = parque->zonas[i];
+        if (zona != NULL) mostrarZona(zona);
+        printf("\n-----------------------------------\n");
+    }
+}
+
+/* nota (martín): revuisar si era conveniente realmente hacer horarios en char, ya que son muchos malloc*/
+struct Zona *crearZona(int id, char *nombre, char *tematica, char *apertura, char *cierre,int cant_encargados, int maxAtracciones, int maxVisitantes){
 
   struct Zona *nueva = NULL;
 
