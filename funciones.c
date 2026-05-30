@@ -195,6 +195,170 @@ void agregarZona(struct Parque *elParque, struct Zona *nueva){
     elParque->cantZonas++;
 }
 
+void cambiarEstadoZona(struct Zona *zona) {
+    if (zona ==NULL) return;
+
+    if (zona->visitantesActuales >= zona->capacidadMaxima) {
+        zona->estadoAforo = 1;
+        printf("\nESTA ZONA ESTA EN AFORO MAXIMO\n");
+    }else {
+        zona->estadoAforo = 0;
+        printf("\nESTA ZONA AUN CUENTA CON AFORO\n");
+    }
+}
+
+void mostrarZona(struct Zona *zona) {
+    printf("\nID Zonas: %d", zona->idZona);
+    printf("\nNombre: %s", zona->nombre);
+    printf("\nTematica: %s", zona->tematica);
+    printf("\nVisitantes actuales: %d", zona->visitantesActuales);
+    printf("\nCapacidad maxima: %d", zona->capacidadMaxima);
+
+    if (zona->estadoAforo == 1) {
+        printf("\nEstado Aforo: COMPLETO");
+    }else {
+        printf("\nEstado Aforo: DISPONIBLE");
+    }
+    printf("\nCantidad atracciones: %d", zona->cantAtraccion);
+}
+
+void listarZonas(struct Parque *parque) {
+    int i;
+    struct Zona *zona;
+
+    if (parque == NULL) return;
+    printf("\n========== ZONAS DEL PARQUE ==========\n");
+    for (i = 0; i < parque->cantZonas; i++) {
+        zona = parque->zonas[i];
+        if (zona != NULL) mostrarZona(zona);
+        printf("\n-----------------------------------\n");
+    }
+}
+
+/*=========================== REPORTES =========================================*/
+
+void mostrarAtraccionMasVisitada(struct Parque *parque) {
+    int i, j;
+    struct Atraccion *masVisit = NULL;
+    struct Zona *zonaAct = NULL;
+    struct Atraccion *actual = NULL;
+
+    if (parque == NULL) return;
+    for (i = 0; i < parque->cantZonas; i++) {
+        zonaAct = parque->zonas[i];
+        for (j = 0; j < zonaAct->cantAtraccion; j++) {
+            actual = zonaAct->arrAtracciones[j];
+            if (masVisit != NULL || actual->totalAtendidos > masVisit->totalAtendidos) {
+                masVisit = actual;
+            }
+        }
+    }
+    if (masVisit != NULL) {
+        printf("\nAtraccion mas visitada:\n");
+        printf("Nombre: %s\n", masVisit->nombreJuego);
+        printf("Total atendidos: %d\n", masVisit->totalAtendidos);
+    }else {
+        printf("\nNo hay atracciones registradas\n");
+    }
+}
+
+void mostrarZonaLlenas(struct Parque *parque) {
+    int i, encontradas = 0;
+    if (parque == NULL) return;
+    for (i = 0; i < parque->cantZonas; i++) {
+        if (parque->zonas[i]->visitantesActuales >= parque->zonas[i]->capacidadMaxima || parque->zonas[i]->estadoAforo == 1) {
+            printf("\nID Zona: %d\n", parque->zonas[i]->idZona);
+            printf("\nNombre: %s\n", parque->zonas[i]->nombre);
+            printf("\nVisitantes: %d\n", parque->zonas[i]->visitantesActuales);
+            printf("Capacidad maxima: %d\n", parque->zonas[i]->capacidadMaxima);
+            encontradas += 1;
+        }
+    }
+    if (encontradas == 0) {
+        printf("\nNo hay zonas llenas\n");
+    }
+}
+
+/*================================ FAMILIAS =================================================*/
+struct NodoFamilia *crearFamilia(char *rut, char *apellido, int integrantes) {
+    struct NodoFamilia *nuevo;
+    nuevo = (struct NodoFamilia *) malloc (sizeof(struct NodoFamilia));
+    nuevo->familia = (struct Familia *) malloc (sizeof(struct Familia));
+
+    nuevo->familia->rutResponsableFamiliar = (char*) malloc ((strlen(rut) + 1) * sizeof(char));
+    strcpy(nuevo->familia->rutResponsableFamiliar, rut);
+
+    nuevo->familia->apellidoFamilia = (char*) malloc ((strlen(apellido) + 1) * sizeof(char));
+    strcpy(nuevo->familia->apellidoFamilia, apellido);
+
+    nuevo->familia->cantidadIntegrantes = integrantes;
+
+    nuevo->sig = NULL;
+    return nuevo;
+}
+
+void registrarFamilia(struct Parque *parque, struct NodoFamilia *nueva) {
+    struct NodoFamilia *rec;
+    if (parque == NULL || nueva == NULL) return;
+    if (parque->listaFamilias == NULL) {
+        parque->listaFamilias = nueva;
+        return;
+    }
+    rec = parque->listaFamilias;
+
+    while (rec-sig != NULL) {
+        rec = rec->sig;
+    }
+    rec->sig = nueva;
+}
+
+struct NodoFamilia *buscarFamilia(struct Parque *parque, char *rutBuscado) {
+    struct NodoFamilia *rec;
+    if (parque == NULL ) return NULL;
+    rec = parque->listaFamilias;
+
+    while (aux != NULL) {
+        if (strcmp(rec->familia->rutResponsableFamiliar, rutBuscado) == 0) {
+            return rec;
+        }
+        rec = rec->sig;
+    }
+    return NULL;
+}
+
+void mostrarFamilia(struct NodoFamilia *listFam) {
+    if (listFam != NULL) return;
+
+    printf("\n========== FAMILIA ==========\n");
+    printf("Rut Responsable: %s\n", listFam->familia->rutResponsableFamiliar);
+    printf("Cantidad integrantes : %d\n", listFam->familia->cantidadIntegrantes);
+}
+
+void eliminarFamilia(struct Parque *parque, char *rutBuscado) {
+    struct NodoFamilia *actual;
+    struct NodoFamilia *anterior;
+    if (parque == NULL) return;
+
+    actual = parque->listaFamilias;
+    anterior = NULL;
+
+    while (actual != NULL) {
+        if (strcmp(actual->familia->rutResponsableFamiliar, rutBuscado) == 0) {
+            if (anterior == NULL) {
+                parque->listaFamilias = actual->sig;
+            }else {
+                anterior->sig = actual->sig;
+            }
+            printf("\nFamilia eliminada\n");
+            return;
+        }
+        anterior = actual;
+        actual = actual->sig;
+    }
+
+    printf("\nFamilia no encontrada\n");
+}
+
 struct Atraccion *crearAtraccion(int id, char *nombre, int estado, int capacidad, int duracion, float alturaMin, int edadMin){
 
   struct Atraccion *nueva = NULL;
@@ -218,17 +382,19 @@ void pausa() {
     getchar();
 }
 
-void menuReportes() {
+void menuReportes(struct Parque *parque) {
     int opcion;
+
+    if (parque == NULL) return;
     do {
         printf("\n===== MENU REPORTES =====\n\n");
 
         printf("1. Total visitantes hoy\n");
-        printf("2. Total entradas vendidas\n");
+        printf("2. Total entradas vendidas hoy\n");
         printf("3. Total entradas utilizadas\n");
         printf("4. Ingresos totales\n");
         printf("5. Atraccion mas visitada\n");
-        printf("6. Zona mas ocupada\n");
+        printf("6. Zonas mas ocupadas\n");
         printf("7. Salir\n");
 
         printf("\nSelecciona una opcion: ");
@@ -236,22 +402,33 @@ void menuReportes() {
 
         switch(opcion){
             case 1:
-                /*Funcion agregar familia*/
+                printf("\nTotal visitantes hoy: %d\n", parque->totalVisitantesHoy);
+                pausa();
                 break;
             case 2:
-                /*Funcion buscar familia*/\
+                /*Funcion ver Total entradas vendidas hoy*/
+                printf("\nTotal entradas vendidas: %d\n", parque->totalEntradasVendidas);
+                pausa();
                 break;
             case 3:
-                /*Funcion quitar familia*/
+                /*Funcion ver Total entradas utilizadas*/
+                printf("\nTotal Entradas Utilizadas: %d\n", parque->totalEntradasUtilizadas);
+                pausa();
                 break;
             case 4:
                 /*funcion para ver ingresos totales*/
+                printf("\nIngresos totales: %.2f\n", parque ->ingresosTotales);
+                pausa();
                 break;
             case 5:
                 /*Funcion mostrar atraccion mas visitada*/
+                mostrarAtraccionMasVisitada(parque);
+                pausa();
                 break;
             case 6:
                 /*mostrar zona mas ocupada*/
+                mostrarZonaLlenas(parque);
+                pausa();
                 break;
             case 7:
                 break;
@@ -262,8 +439,7 @@ void menuReportes() {
     }while(opcion != 7);
 }
 
-
-void menuAtraccion() {
+void menuAtraccion(struct Parque *parque) {
     int opcion;
     do {
         printf("\n===== MENU ATRACCIONES =====\n\n");
@@ -311,7 +487,7 @@ void menuAtraccion() {
     }while(opcion != 81);
 }
 
-void menuZonas() {
+void menuZonas(struct Parque *parque) {
     int opcion;
     do {
         printf("\n===== MENU ZONAS =====\n\n");
@@ -347,8 +523,13 @@ void menuZonas() {
     }while(opcion != 5);
 }
 
-void menuFamilias() {
+void menuFamilias(struct Parque *parque) {
     int opcion;
+    char rut[20];
+    char apellido[20];
+    int integrantes;
+    struct Nodofamilia *nuevo;
+    struct Nodofamilia *encontrado;
     do {
         printf("\n===== MENU FAMILIAS =====\n\n");
 
@@ -363,12 +544,37 @@ void menuFamilias() {
         switch(opcion){
             case 1:
                 /*Funcion agregar familia*/
+                printf("Rut responsable: ");
+                scanf("%s", rut);
+                printf("Apellido familia: ");
+                scanf("%s", apellido);
+                printf("Cantidad integrantes: ");
+                scanf("%d", &integrantes);
+
+                nuevo = crearFamilia(rut, apellido, integrantes);
+                registrarFamilia(parque, nuevo);
+                printf("\nFamilia registrada\n");
+                pausa();
                 break;
             case 2:
-                /*Funcion buscar familia*/\
+                /*Funcion buscar familia*/
+                printf("Rut a buscar: ");
+                scanf("%s", rut);
+                encontrado = buscarFamilia(parque, rut);
+                if (encontrado != NULL) {
+                    mostrarFamilia(encontrado);
+                }else {
+                    printf("\nFamilia no encontrada\n");
+                }
+                pausa();
                 break;
             case 3:
                 /*Funcion quitar familia*/
+                printf("Rut familia a eliminar: ");
+                scanf("%s", rut);
+
+                eliminarFamilia(parque, rut);
+                pausa();
                 break;
             case 4:
                 break;
@@ -379,7 +585,7 @@ void menuFamilias() {
     }while(opcion != 4);
 }
 
-void menuVisitantes() {
+void menuVisitantes(struct Parque *parque) {
     int opcion;
     do {
         printf("\n===== MENU VISITANTES =====\n\n");
@@ -415,7 +621,7 @@ void menuVisitantes() {
     }while(opcion != 5);
 }
 
-void menuPrincipal() {
+void menuPrincipal(struct Parque *parque) {
     int opcion;
     do {
         printf("\n===== IBCLANDIA =====\n\n");
@@ -432,19 +638,19 @@ void menuPrincipal() {
 
         switch (opcion) {
             case 1:
-                menuVisitantes();
+                menuVisitantes(parque);
                 break;
             case 2:
-                menuFamilias();
+                menuFamilias(parque);
                 break;
             case 3:
-                menuZonas();
+                menuZonas(parque);
                 break;
             case 4:
-                menuAtraccion();
+                menuAtraccion(parque);
                 break;
             case 5:
-                menuReportes();
+                menuReportes(parque);
                 break;
             case 6:
                 printf("\nSaliendo...");
@@ -456,8 +662,10 @@ void menuPrincipal() {
     }while(opcion != 6);
 }
 
-int main() {
-    menuPrincipal();
+int main(void) {
+    struct Parque *parque = NULL;
+    if (parque == Null) parque = abrirParque("IBCLANDIA", "29/05/2026", 1000, MAX_ZONAS);
+    menuPrincipal(parque);
 }
 
   nueva->alturaMinima = alturaMin;
