@@ -1,21 +1,26 @@
+/* parámetros de MAX tentativos*/
+#define MAX_ATRACCIONES 30
+#define MAX_ZONAS 30
+
 /* acá utilizaremos formato horario tipo militar*/
-struct Horario{
+struct Horario {
     int hora;
     int minuto;
+    char temporada; /* A = alta, B = baja, detalle únicamente para tener mayor info para la gestión y tener los 3 datos primitivos*/
 };
 
-struct Familia{
+struct Familia {
     char *rutResponsableFamiliar;
     char *apellidoFamilia;
     int  cantidadIntegrantes;
 };
 /*nodo para lista simple de familias*/
-struct NodoFamilia{
+struct NodoFamilia {
     struct Familia *familia;
     struct NodoFamilia *sig;
 };
 
-struct Entrada{
+struct Entrada {
     int   idEntrada;
     char *tipoEntrada;
     char *fechaVisita;
@@ -23,12 +28,12 @@ struct Entrada{
     int   estado; /* 0: no utilizada, 1: utilizada */
 };
 /* nodo para lista simple de entradas */
-struct NodoEntradas{
+struct NodoEntradas {
     struct Entrada *entrada;
     struct NodoEntradas *sig;
 };
 
-struct Visitante{
+struct Visitante {
     char *rut;
     char *nombre;
     float altura;
@@ -38,20 +43,20 @@ struct Visitante{
     struct Familia *familia;
 };
 /* nodo para ABB de visitantes */
-struct NodoVisitante{
+struct NodoVisitante {
     struct Visitante *visitante;
     struct NodoVisitante *izq; /* se utilizará el rut para manejarse*/
     struct NodoVisitante *der;
 };
 
-struct filaEspera{
+struct filaEspera {
     struct Visitante **cola; 
     int   maxCola;
     int   cantidadEnFila;
     int   estadoFila; /* 1 llena, 2 suspendida, 3 vacia, 4 aún con espacio*/
 };
 
-struct Atraccion{
+struct Atraccion {
     int   idAtraccion;
     char *nombreJuego;
     int   estado; /* 0 cerrada por horario, 1 abierta, 2 en mantenimiento, 3 fuera de servicio */
@@ -63,12 +68,12 @@ struct Atraccion{
     struct filaEspera *fila; /* puntero a la fila de espera de la atracción */
 };
 
-struct Zona{
+struct Zona {
     int   idZona;
     char *nombre;
     char *tematica;
-    struct Horario *horaApertura;
-    struct Horario *horaCierre;
+    struct Horario horaApertura;
+    struct Horario horaCierre;
     int   numEncargados;
     int   capacidadMaxima;
     int   visitantesActuales;
@@ -77,7 +82,7 @@ struct Zona{
     int   cantAtraccion; /* cantidad de atracciones en la zona (pLibre)*/
 };
 
-struct Parque{
+struct Parque {
     char *nombre;
     char *fechaOperacion;
     int   capacidadMaxima;
