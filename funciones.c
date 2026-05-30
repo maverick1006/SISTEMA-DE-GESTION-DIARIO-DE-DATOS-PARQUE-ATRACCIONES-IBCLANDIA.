@@ -173,6 +173,253 @@ struct Atraccion *crearAtraccion(int id, char *nombre, int estado, int capacidad
   nueva->capacidadDentroDeAtraccion = capacidad;
 
   nueva->duracionCiclo = duracion;
+void pausa() {
+    printf("\n\nPresione ENTER...");
+    getchar();
+    getchar();
+}
+
+void menuReportes() {
+    int opcion;
+    do {
+        printf("\n===== MENU REPORTES =====\n\n");
+
+        printf("1. Total visitantes hoy\n");
+        printf("2. Total entradas vendidas\n");
+        printf("3. Total entradas utilizadas\n");
+        printf("4. Ingresos totales\n");
+        printf("5. Atraccion mas visitada\n");
+        printf("6. Zona mas ocupada\n");
+        printf("7. Salir\n");
+
+        printf("\nSelecciona una opcion: ");
+        scanf("%d", &opcion);
+
+        switch(opcion){
+            case 1:
+                /*Funcion agregar familia*/
+                break;
+            case 2:
+                /*Funcion buscar familia*/\
+                break;
+            case 3:
+                /*Funcion quitar familia*/
+                break;
+            case 4:
+                /*funcion para ver ingresos totales*/
+                break;
+            case 5:
+                /*Funcion mostrar atraccion mas visitada*/
+                break;
+            case 6:
+                /*mostrar zona mas ocupada*/
+                break;
+            case 7:
+                break;
+            default:
+                printf("Opcion no valida\n");
+                pausa();
+        }
+    }while(opcion != 7);
+}
+
+
+void menuAtraccion() {
+    int opcion;
+    do {
+        printf("\n===== MENU ATRACCIONES =====\n\n");
+
+        printf("1. Buscar atraccion\n");
+        printf("2. Cambiar estado\n");
+        printf("3. Agregar visitante fila\n");
+        printf("4. Atender visitante fila\n");
+        printf("5. Mostrar Fila\n");
+        printf("6. Eliminar atraccion\n");
+        printf("7. Registrar atraccion\n");
+        printf("8. Salir\n");
+
+        printf("\nSelecciona una opcion: ");
+        scanf("%d", &opcion);
+
+        switch(opcion){
+            case 1:
+                /*Funcion buscar atraccion*/
+                break;
+            case 2:
+                /*Fincion cambiar estado*/
+                break;
+            case 3:
+                /*Funcion agregar visitante a fila*/
+                break;
+            case 4:
+                /*Funcion atender visitante (esta quita de la fila al atender. No se si acerla realmente)*/
+                break;
+            case 5:
+                /*funcion Mostrar fila*/
+                break;
+            case 6:
+                /*funcion Eliminar atraccion*/
+                break;
+            case 7:
+                /*funcion registrar atraccion*/
+                break;
+            case 8:
+                break;
+            default:
+                printf("Opcion no valida\n");
+                pausa();
+        }
+    }while(opcion != 81);
+}
+
+void menuZonas() {
+    int opcion;
+    do {
+        printf("\n===== MENU ZONAS =====\n\n");
+
+        printf("1. Buscar zona\n");
+        printf("2. Cambiar estado\n");
+        printf("3. Registrar zona\n");
+        printf("4. Eliminar zona\n");
+        printf("5. Volver\n");
+
+        printf("\nSelecciona una opcion: ");
+        scanf("%d", &opcion);
+
+        switch(opcion){
+            case 1:
+                /*Funcion buscar zona*/
+                break;
+            case 2:
+                /*Funcion cambiar estado*/\
+                break;
+            case 3:
+                /*funcion agregar zona*/
+                break;
+            case 4:
+                /*funcion eliminar zona*/
+                break;
+            case 5:
+                break;
+            default:
+                printf("Opcion no valida\n");
+                pausa();
+        }
+    }while(opcion != 5);
+}
+
+void menuFamilias() {
+    int opcion;
+    do {
+        printf("\n===== MENU FAMILIAS =====\n\n");
+
+        printf("1. Registrar familia\n");
+        printf("2. Buscar familia\n");
+        printf("3. Eliminar familia\n");
+        printf("4. volver\n");
+
+        printf("\nSelecciona una opcion: ");
+        scanf("%d", &opcion);
+
+        switch(opcion){
+            case 1:
+                /*Funcion agregar familia*/
+                break;
+            case 2:
+                /*Funcion buscar familia*/\
+                break;
+            case 3:
+                /*Funcion quitar familia*/
+                break;
+            case 4:
+                break;
+            default:
+                printf("Opcion no valida\n");
+                pausa();
+        }
+    }while(opcion != 4);
+}
+
+void menuVisitantes() {
+    int opcion;
+    do {
+        printf("\n===== MENU VISITANTES =====\n\n");
+
+        printf("1. Registrar visitante\n");
+        printf("2. Buscar visitante\n");
+        printf("3. Registrar Entrada visitante\n");
+        printf("4. Eliminar Visitante\n");
+        printf("5. Volver\n");
+
+        printf("\nseleccione opcion: ");
+        scanf("%d", &opcion);
+
+        switch(opcion) {
+            case 1:
+                /*funcion Registrar */
+                break;
+            case 2:
+                /*funcion Buscar*/
+                break;
+            case 3:
+                /*Funcion agregar entrada*/
+                break;
+            case 4:
+                /*Funcion eliminar visitante*/\
+                break;
+            case 5:
+                break;
+            default:
+                printf("Opcion no valida\n");
+                pausa();
+        }
+    }while(opcion != 5);
+}
+
+void menuPrincipal() {
+    int opcion;
+    do {
+        printf("\n===== IBCLANDIA =====\n\n");
+
+        printf("1. Gestion Visitantes\n");
+        printf("2. Gestion Familias\n");
+        printf("3. Gestion Zonas\n");
+        printf("4. Gestion Atracciones\n");
+        printf("5. Reportes\n");
+        printf("6. Salir\n");
+
+        printf("Seleccionar accion: ");
+        scanf("%d", &opcion);
+
+        switch (opcion) {
+            case 1:
+                menuVisitantes();
+                break;
+            case 2:
+                menuFamilias();
+                break;
+            case 3:
+                menuZonas();
+                break;
+            case 4:
+                menuAtraccion();
+                break;
+            case 5:
+                menuReportes();
+                break;
+            case 6:
+                printf("\nSaliendo...");
+                break;
+            default :
+                printf("\nOpcion Invalida");
+                pausa();
+        }
+    }while(opcion != 6);
+}
+
+int main() {
+    menuPrincipal();
+}
 
   nueva->alturaMinima = alturaMin;
 
