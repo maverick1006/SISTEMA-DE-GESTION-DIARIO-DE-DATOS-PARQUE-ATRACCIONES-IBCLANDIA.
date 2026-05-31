@@ -2,6 +2,108 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct Horario {
+    int hora;
+    int minuto;
+    char temporada; /* A = alta, B = baja, detalle únicamente para tener mayor info para la gestión y tener los 3 datos primitivos*/
+};
+
+struct Familia {
+    char *rutResponsableFamiliar;
+    char *apellidoFamilia;
+    int  cantidadIntegrantes;
+};
+/*nodo para lista simple de familias*/
+struct NodoFamilia {
+    struct Familia *familia;
+    struct NodoFamilia *sig;
+};
+
+struct Entrada {
+    int   idEntrada;
+    char *tipoEntrada;
+    char *fechaVisita;
+    float valor;
+    int   estado; /* 0: no utilizada, 1: utilizada */
+};
+/* nodo para lista simple de entradas */
+struct NodoEntradas {
+    struct Entrada *entrada;
+    struct NodoEntradas *sig;
+};
+
+struct Visitante {
+    char *rut;
+    char *nombre;
+    float altura;
+    int   edad;
+    int   dentroParque; /* 0: fuera del parque, 1: dentro del parque */
+    struct NodoEntradas *listaEntrada; /* head a la lista de entradas */
+    struct Familia *familia;
+};
+/* nodo para ABB de visitantes */
+struct NodoVisitante {
+    struct Visitante *visitante;
+    struct NodoVisitante *izq; /* se utilizará el rut para manejarse*/
+    struct NodoVisitante *der;
+};
+
+struct filaEspera {
+    struct Visitante **cola;
+    int   maxCola;
+    int   cantidadEnFila;
+    int   estadoFila; /* 1 llena, 2 suspendida, 3 vacia, 4 aún con espacio*/
+};
+
+struct Atraccion {
+    int   idAtraccion;
+    char *nombreJuego;
+    int   estado; /* 0 cerrada por horario, 1 abierta, 2 en mantenimiento, 3 fuera de servicio */
+    int   capacidadDentroDeAtraccion;
+    int   duracionCiclo;
+    float alturaMinima;
+    int   edadMinima;
+    int   totalAtendidos;
+    struct filaEspera *fila; /* puntero a la fila de espera de la atracción */
+};
+
+struct Zona {
+    int   idZona;
+    char *nombre;
+    char *tematica;
+    struct Horario horaApertura;
+    struct Horario horaCierre;
+    int   numEncargados;
+    int   capacidadMaxima;
+    int   visitantesActuales;
+    int   estadoAforo;
+    struct Atraccion **arrAtracciones;
+    int   cantAtraccion; /* cantidad de atracciones en la zona (pLibre)*/
+};
+
+struct Parque {
+    char *nombre;
+    char *fechaOperacion;
+    int   capacidadMaxima;
+    int   visitantesActuales;
+    int   totalVisitantesHoy;
+    int   totalEntradasVendidas;
+    int   totalEntradasUtilizadas;
+    float ingresosTotales;
+    struct Zona **zonas; /* arreglo compacto de punteros a zonas con tamaño MAX_ZONAS */
+    int   cantZonas; /* cantidad de zonas en el parque (pLibre)*/
+    struct NodoVisitante *raizVisitantes; /* raíz del ABB de visitantes */
+    struct NodoFamilia *listaFamilias; /* head a la lista de familias */
+};
+
+
+
+
+
+
+
+
+/*========================== inicializacion del parque ==========================================*/
 struct Parque *abrirParque(char *nombre, char *fecha, int maxCapacidad, int maxZonas){
 
   struct Parque *parqueCreado = NULL;
@@ -25,7 +127,7 @@ struct Parque *abrirParque(char *nombre, char *fecha, int maxCapacidad, int maxZ
   parqueCreado->totalEntradasUtilizadas = 0;
   parqueCreado->ingresosTotales = 0.0;
   parqueCreado->cantZonas = maxZonas;
-    parqueCreado->zonas = (struct Zona*)malloc(parqueCreado->cantZonas*sizeof(struct Zona));
+    parqueCreado->zonas = (struct Zona**)malloc(maxZonas*sizeof(struct Zona*));
   parqueCreado->raizVisitantes = NULL;
   parqueCreado->listaFamilias = NULL;
 
@@ -129,7 +231,7 @@ void registrarVisitante(struct Parque *parque, char rut, char nombre, float altu
     if (parque == NULL) return;
 
     nuevo = crearVisitante(rut, nombre, altura, edad);
-    parque->raizVisitante = insertarVisitanteArbol(parque->raizVisitante, nuevo);
+    parque->raizVisitantes = insertarVisitanteArbol(parque->raizVisitantes, nuevo);
     parque->totalVisitantesHoy++;
 
     printf("\nVisitante registrado correctamente\n");
@@ -239,7 +341,7 @@ struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario aper
   
   /* el plibre*/
   nueva->cantAtraccion = maxAtracciones;
-    nueva->arrAtracciones = (struct Atraccion*)malloc(maxAtracciones*sizeof(struct Atraccion));
+    nueva->arrAtracciones = (struct Atraccion**)malloc(maxAtracciones*sizeof(struct Atraccion*));
   return nueva;
 }
 
@@ -264,16 +366,9 @@ void agregarZona(struct Parque *elParque, struct Zona *nueva){
       /* quizás sería bueno agregar mensaje de error acá*/
         return;
     }
-    
-    /* si es que ya se llegó al máximo de zonas, nos salimos con un return vacío, ya que la función es void, lo mismo en el caso de arriba por si las entradas son NULL*/
-    if(strlen(elParque->zonas) >= elParque->cantZonas){
-      /* quizás sería bueno agregar mensaje de error acá*/
-        return;
-    }
-    
+
     /* en este punto se realiza el agregar y se aumenta el pLibre*/
     elParque->zonas[elParque->cantZonas] = nueva;
-    
     elParque->cantZonas++;
 }
 
@@ -512,12 +607,9 @@ struct Atraccion *crearAtraccion(int id, char *nombre, int estado, int capacidad
 }
 
 void agregarAtraccionAZona(struct Zona *zonaSeleccionada, struct Atraccion *nuevaAtraccion){
-    /* validación de espacio */
-    if (zonaSeleccionada->cantAtraccion >= MAX_ATRACCIONES){
-        /* quizás sería bueno agregar mensaje de error acá*/
+    if(zonaSeleccionada == NULL || nuevaAtraccion == NULL){
         return;
     }
-
     /* Guardamos la atracción en base al pLibre actual y lo incrementamos */
     zonaSeleccionada->arrAtracciones[zonaSeleccionada->cantAtraccion] = nuevaAtraccion;
     zonaSeleccionada->cantAtraccion++;
@@ -583,7 +675,7 @@ void modificarEstadoDeAtraccion(struct Atraccion *atraccion, int nuevoValor){
 
 void listarAtraccionesZona(struct Zona *zona){
     int i;
-    if (zona == NULL) return;    if (zona == NULL) return;
+    if (zona == NULL) return;
 
     printf("\nAtracciones de la zna:\n", zona->nombre);
 
@@ -630,8 +722,8 @@ struct Atraccion *buscarAtraccion(struct Parque *parque, int idBuscar) {
 
      if (parque == NULL) return NULL;
 
-    for (i = 0: i < parque ->cantZonas; i++) {
-        for (j = 0; j < parque->zonas[i]->atraccion; j++) {
+    for (i = 0; i < parque ->cantZonas; i++) {
+        for (j = 0; j < parque->zonas[i]->cantAtraccion; j++) {
             if(parque->zonas[i]->arrAtracciones[j] != NULL &&
               parque->zonas[i]->arrAtracciones[j]->idAtraccion == idBuscar){
 
@@ -649,7 +741,7 @@ void registrarAtraccion(struct Zona *zona, int id, char *nombre, int estado, int
 
     nueva = crearAtraccion(id, nombre, estado, capacidad, duracion, alturaMin, edadMin);
 
-    agregarAtraccionAZona(zona,nueva)
+    agregarAtraccionAZona(zona, nueva);
     printf("\nAtraccion registrada correctamente.\n");
 }
 
