@@ -1,10 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 struct Parque *abrirParque(char *nombre, char *fecha, int maxCapacidad, int maxZonas){
 
   struct Parque *parqueCreado = NULL;
-  int i;
 
   parqueCreado = (struct Parque*)malloc(sizeof(struct Parque));
 
@@ -24,13 +24,8 @@ struct Parque *abrirParque(char *nombre, char *fecha, int maxCapacidad, int maxZ
   parqueCreado->totalEntradasVendidas = 0;
   parqueCreado->totalEntradasUtilizadas = 0;
   parqueCreado->ingresosTotales = 0.0;
-  parqueCreado->cantZonas = 0;
-
-  /* aseguramos que todo el arreglo se inicie en NULL, para hacerlo compacto*/
-  for (i = 0; i < maxZonas; i++){
-    parqueCreado->zonas[i] = NULL;
-  }
-
+  parqueCreado->cantZonas = maxZonas;
+    parqueCreado->zonas = (struct Zona*)malloc(parqueCreado->cantZonas*sizeof(struct Zona));
   parqueCreado->raizVisitantes = NULL;
   parqueCreado->listaFamilias = NULL;
 
@@ -72,7 +67,7 @@ struct NodoVisitante *insertarVisitanteArbol(struct NodoVisitante *raiz, struct 
     if (raiz == NULL) {
         return nuevo;
     }
-    
+
     aux = strcmp(nuevo->visitante->rut, raiz->visitante->rut);
     /* recursividad para buscar la posición donde debe ir ese visitante*/
     if (aux < 0) {
@@ -107,14 +102,39 @@ void listarVisitantes(struct NodoVisitante *raiz){
     }
 }
 
-/* validación ingreso Y ELIMINAR, se necesita búsqueda binaria???*/
+void mostrarVisitante(struct NodoVisitante *nodo) {
+    if (nodo == NULL) return;
+    printf("\n========== VISITANTE ==========\n");
+    printf("RUT : %s\n", nodo->visitante->rut);
+    printf("Nombre : %s\n", nodo->visitante->nombre);
+    printf("Edad : %d anios\n", nodo->visitante->edad);
+    printf("Altura : %.2f mts\n", nodo->visitante->altura);
+    printf("En parque : %s\n", nodo->visitante->dentroParque ? "SI" : "NO");
+    if (nodo->visitante->familia != NULL)
+        printf("Familia   : %s\n", nodo->visitante->familia->apellidoFamilia);
+}
 
+/* Busqueda en ABB por RUT — algoritmo de busqueda en estructura compleja */
+struct NodoVisitante *buscarVisitante(struct NodoVisitante *raiz, char *rut) {
+    int cmp;
+    if (raiz == NULL) return NULL;
+    cmp = strcmp(rut, raiz->visitante->rut);
+    if (cmp == 0) return raiz;
+    if (cmp < 0)  return buscarVisitante(raiz->izq, rut);
+    return buscarVisitante(raiz->der, rut);
+}
 
+void registrarVisitante(struct Parque *parque, char rut, char nombre, float altura, int edad) {
+    struct NodoVisitante *nuevo;
+    if (parque == NULL) return;
 
+    nuevo = crearVisitante(rut, nombre, altura, edad);
+    parque->raizVisitante = insertarVisitanteArbol(parque->raizVisitante, nuevo);
+    parque->totalVisitantesHoy++;
 
+    printf("\nVisitante registrado correctamente\n");
+}
 
-
-/*-----------------------------------------------------------*/
 
 void agregarEntradaVisitante(struct Parque *parque, struct Visitante *visitante, int id, char *tipo, char *fecha, float valor, int estado){
 
@@ -152,12 +172,52 @@ void agregarEntradaVisitante(struct Parque *parque, struct Visitante *visitante,
     printf("\nEntrada %d asignada con exito al visitante %s (RUT: %s).\n", id, visitante->nombre, visitante->rut);
 }
 
+struct NodoVisitante *minimoABB(struct NodoVisitante *raiz){
+    while(raiz != NULL && raiz->izq != NULL){
+        raiz = raiz->izq;
+    }
+    return raiz;
+}
 
+struct NodoVisitante *eliminarVisitante(struct NodoVisitante *raiz, char *rut){
+    struct NodoVisitante *temp;
+    if(raiz == NULL){
+        return NULL;
+    }
+    if(strcmp(rut, raiz->visitante->rut) < 0){
+        raiz->izq = eliminarVisitante(raiz->izq, rut);
+    }
+    else if(strcmp(rut, raiz->visitante->rut) > 0){
+        raiz->der = eliminarVisitante(raiz->der, rut);
+    }
+    else{
+        /* Caso 1: sin hijos */
+        if(raiz->izq == NULL && raiz->der == NULL){
+            free(raiz);
+            return NULL;
+        }
+        /* Caso 2: un hijo */
+        if(raiz->izq == NULL){
+            temp = raiz->der;
+            free(raiz);
+            return temp;
+        }
+        if(raiz->der == NULL){
+            temp = raiz->izq;
+            free(raiz);
+            return temp;
+        }
+        /* Caso 3: dos hijos */
+        temp = minimoABB(raiz->der);
+        raiz->visitante = temp->visitante;
+        raiz->der = eliminarVisitante(raiz->der, temp->visitante->rut);
+    }
+    return raiz;
+}
 
 /*============================= ZONAS ==================================================*/
 
-struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int cant_encargados, int maxVisitantes){
-  int i;
+struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int cant_encargados, int maxVisitantes, int maxAtracciones){
   struct Zona *nueva = NULL;
 
   nueva = (struct Zona*)malloc(sizeof(struct Zona));
@@ -178,11 +238,8 @@ struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario aper
   nueva->estadoAforo = 0;
   
   /* el plibre*/
-  nueva->cantAtraccion = 0;
-  /* aseguramos iniciar todo en NULL, para hacerlo de tipo compacto*/
-  for (i = 0; i < MAX_ATRACCIONES; i++){
-    nueva->arrAtracciones[i] = NULL;
-  }
+  nueva->cantAtraccion = maxAtracciones;
+    nueva->arrAtracciones = (struct Atraccion*)malloc(maxAtracciones*sizeof(struct Atraccion));
   return nueva;
 }
 
@@ -209,7 +266,7 @@ void agregarZona(struct Parque *elParque, struct Zona *nueva){
     }
     
     /* si es que ya se llegó al máximo de zonas, nos salimos con un return vacío, ya que la función es void, lo mismo en el caso de arriba por si las entradas son NULL*/
-    if(elParque->cantZonas >= MAX_ZONAS){
+    if(strlen(elParque->zonas) >= elParque->cantZonas){
       /* quizás sería bueno agregar mensaje de error acá*/
         return;
     }
@@ -288,6 +345,13 @@ void eliminarZona(struct Parque *elParque, int idBuscar) {
     if (aux == 0) {
         printf("\nzona de id %d no encontrada dentro del parque.\n", idBuscar);
     }
+}
+void registrarZona(struct Parque *parque, int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int encargados, int capacidad, int maxAtracciones) {
+    struct Zona *nueva;
+
+    if (parque == NULL) return;
+    nueva = crearZona(id, nombre, tematica, apertura, cierre, encargados, capacidad, maxAtracciones);
+    agregarZona(parque,nueva);
 }
 
 /*=========================== REPORTES =========================================*/
@@ -561,7 +625,86 @@ void listarAtraccionesZona(struct Zona *zona){
         }
     }
 }
+struct Atraccion *buscarAtraccion(struct Parque *parque, int idBuscar) {
+    int i, j;
 
+     if (parque == NULL) return NULL;
+
+    for (i = 0: i < parque ->cantZonas; i++) {
+        for (j = 0; j < parque->zonas[i]->atraccion; j++) {
+            if(parque->zonas[i]->arrAtracciones[j] != NULL &&
+              parque->zonas[i]->arrAtracciones[j]->idAtraccion == idBuscar){
+
+                return parque->zonas[i]->arrAtracciones[j];
+              }
+        }
+    }
+    return NULL;
+
+}
+
+void registrarAtraccion(struct Zona *zona, int id, char *nombre, int estado, int capacidad, int duracion, float alturaMin, int edadMin) {
+    struct Atraccion *nueva;
+    if(zona == NULL) return;
+
+    nueva = crearAtraccion(id, nombre, estado, capacidad, duracion, alturaMin, edadMin);
+
+    agregarAtraccionAZona(zona,nueva)
+    printf("\nAtraccion registrada correctamente.\n");
+}
+
+void agregarVisitanteAFila(struct Atraccion *atraccion, struct Visitante *visitante){
+    int pos;
+    if(atraccion == NULL || visitante == NULL) return;
+
+    if(atraccion->fila->cantidadEnFila >= atraccion->fila->maxCola){
+        printf("\nFila llena.\n");
+        return;
+    }
+
+    pos = atraccion->fila->cantidadEnFila;
+
+    atraccion->fila->cola[pos] = visitante;
+
+    atraccion->fila->cantidadEnFila++;
+
+    printf("\nVisitante agregado a la fila.\n");
+}
+
+struct Visitante *atenderVisitante(struct Atraccion *atraccion){
+    int i;
+    struct Visitante *atendido;
+    if(atraccion == NULL) return NULL;
+
+    if(atraccion->fila->cantidadEnFila == 0){
+        printf("\nFila vacia.\n");
+        return NULL;
+    }
+
+    atendido = atraccion->fila->cola[0];
+    for(i = 0; i < atraccion->fila->cantidadEnFila - 1; i++){
+        atraccion->fila->cola[i] =
+        atraccion->fila->cola[i+1];
+    }
+    atraccion->fila->cantidadEnFila--;
+    atraccion->totalAtendidos++;
+
+    return atendido;
+}
+
+void mostrarFila(struct Atraccion *atraccion){
+    int i;
+    if(atraccion == NULL) return;
+
+    printf("\n===== FILA =====\n");
+    if(atraccion->fila->cantidadEnFila == 0){
+        printf("Fila vacia\n");
+        return;
+    }
+    for(i = 0; i < atraccion->fila->cantidadEnFila; i++){
+        printf("%d) %s\n", i+1, atraccion->fila->cola[i]->nombre);
+    }
+}
 /*====================================== MENU =======================================================*/
 
 void pausa() {
@@ -629,6 +772,22 @@ void menuReportes(struct Parque *parque) {
 
 void menuAtraccion(struct Parque *parque) {
     int opcion;
+    int id;
+    int idAtr;
+    int estado;
+    int idZona;
+    int capacidad;
+    int duracion;
+    int edadMin;
+    float alturaMin;
+    char nombre[50];
+    char rut[20];
+
+    struct Atraccion *atr;
+    struct NodoVisitante *vis;
+    struct Visitante *atendido;
+    struct Zona *zona;
+
     do {
         printf("\n===== MENU ATRACCIONES =====\n\n");
 
@@ -647,24 +806,109 @@ void menuAtraccion(struct Parque *parque) {
         switch(opcion){
             case 1:
                 /*Funcion buscar atraccion*/
+                printf("ID atraccion: ");
+                scanf("%d",&id);
+
+                atr = buscarAtraccion(parque,id);
+                if(atr != NULL) {
+                    printf("\nAtraccion encontrada: %s\n",atr->nombreJuego);
+                }else {
+                    printf("\nNo encontrada\n");
+                }
+                pausa();
                 break;
             case 2:
                 /*Fincion cambiar estado*/
+                printf("ID atraccion: ");
+                scanf("%d",&id);
+
+                atr = buscarAtraccion(parque,id);
+                if(atr != NULL){
+                    printf("Nuevo estado: ");
+                    scanf("%d",&estado);
+                    modificarEstadoDeAtraccion(atr,estado);
+                }else {
+                    printf("\nNo encontrada\n");
+                }
+                pausa();
                 break;
             case 3:
                 /*Funcion agregar visitante a fila*/
+                printf("ID atraccion: ");
+                scanf("%d",&idAtr);
+                printf("Rut visitante: ");
+                scanf("%s",rut);
+
+                atr = buscarAtraccion(parque,idAtr);
+                vis = buscarVisitante(parque->raizVisitantes,rut);
+                if(atr != NULL && vis != NULL) {
+                    agregarVisitanteAFila(atr,vis->visitante);
+                }
+                pausa();
                 break;
             case 4:
                 /*Funcion atender visitante (esta quita de la fila al atender. No se si acerla realmente)*/
+                printf("ID atraccion: ");
+                scanf("%d",&idAtr);
+
+                atr = buscarAtraccion(parque,idAtr);
+                if(atr != NULL){
+                    atendido = atenderVisitante(atr);
+                    if(atendido != NULL) {
+                        printf("\nAtendido: %s\n", atendido->nombre);
+                    }
+                }
+                pausa();
                 break;
             case 5:
                 /*funcion Mostrar fila*/
+                printf("ID atraccion: ");
+                scanf("%d",&idAtr);
+
+                atr = buscarAtraccion(parque,idAtr);
+                if(atr != NULL) {
+                    mostrarFila(atr);
+                }
+                pausa();
                 break;
             case 6:
                 /*funcion Eliminar atraccion*/
+                printf("ID zona: ");
+                scanf("%d",&idZona);
+
+                zona = buscarZona(parque,idZona);
+                if(zona != NULL){
+                    printf("ID atraccion: ");
+                    scanf("%d",&idAtr);
+                    eliminarAtraccionDeZona(zona,idAtr);
+                }
+                pausa();
                 break;
             case 7:
                 /*funcion registrar atraccion*/
+                printf("ID zona: ");
+                scanf("%d",&idZona);
+
+                zona = buscarZona(parque,idZona);
+                if(zona != NULL){
+                    printf("ID atraccion: ");
+                    scanf("%d",&id);
+                    printf("Nombre: ");
+                    scanf("%s",nombre);
+                    printf("Estado: ");
+                    scanf("%d",&estado);
+                    printf("Capacidad: ");
+                    scanf("%d",&capacidad);
+                    printf("Duracion: ");
+                    scanf("%d",&duracion);
+                    printf("Altura minima: ");
+                    scanf("%f",&alturaMin);
+                    printf("Edad minima: ");
+                    scanf("%d",&edadMin);
+
+                    registrarAtraccion(zona, id, nombre, estado, capacidad, duracion, alturaMin, edadMin);
+                }
+                pausa();
                 break;
             case 8:
                 break;
@@ -672,11 +916,21 @@ void menuAtraccion(struct Parque *parque) {
                 printf("Opcion no valida\n");
                 pausa();
         }
-    }while(opcion != 81);
+    }while(opcion != 8);
 }
 
 void menuZonas(struct Parque *parque) {
     int opcion;
+    int id;
+    int encargados;
+    int capacidad;
+    int cantAtracciones;
+    char nombre[50];
+    char tematica[50];
+
+    struct Zona *zona;
+    struct Horario apertura;
+    struct Horario cierre;
     do {
         printf("\n===== MENU ZONAS =====\n\n");
 
@@ -689,18 +943,65 @@ void menuZonas(struct Parque *parque) {
         printf("\nSelecciona una opcion: ");
         scanf("%d", &opcion);
 
-        switch(opcion){
+        switch(opcion) {
             case 1:
                 /*Funcion buscar zona*/
+                printf("ID zona: ");
+                scanf("%d",&id);
+
+                zona = buscarZona(parque,id);
+                if(zona != NULL) {
+                    mostrarZona(zona);
+                }else{
+                printf("\nZona no encontrada\n");
+                }
+                pausa();
                 break;
             case 2:
-                /*Funcion cambiar estado*/\
+                /*Funcion cambiar estado*/
+                printf("ID zona: ");
+                scanf("%d",&id);
+
+                zona = buscarZona(parque,id);
+                if(zona != NULL) {
+                    cambiarEstadoZona(zona);
+                }else {
+                    printf("\nZona no encontrada\n");
+                }
+                pausa();
                 break;
             case 3:
                 /*funcion agregar zona*/
+                printf("ID: ");
+                scanf("%d",&id);
+                printf("Nombre: ");
+                scanf("%s",nombre);
+                printf("Tematica: ");
+                scanf("%s",tematica);
+                printf("Hora apertura: ");
+                scanf("%d",&apertura->hora);
+                printf("Hora cierre: ");
+                scanf("%d",&cierre->hora);
+
+                apertura->minuto = 0;
+                cierre->minuto = 0;
+
+                printf("Encargados: ");
+                scanf("%d",&encargados);
+                printf("Capacidad: ");
+                scanf("%d",&capacidad);
+                printf("Cantidad de atracciones: ");
+                scanf("%d",&cantAtracciones);
+
+                registrarZona(parque, id, nombre, tematica, apertura, cierre, encargados, capacidad, cantAtracciones);
+                pausa();
                 break;
             case 4:
                 /*funcion eliminar zona*/
+                printf("ID zona: ");
+                scanf("%d",&id);
+                eliminarZona(parque,id);
+                pausa();
                 break;
             case 5:
                 break;
@@ -775,6 +1076,16 @@ void menuFamilias(struct Parque *parque) {
 
 void menuVisitantes(struct Parque *parque) {
     int opcion;
+    int opcionTipo;
+    int edad;
+    float altura;
+    float valor;
+    char rut[20];
+    char nombre[50];
+    char tipo[20];
+
+    struct NodoVisitante *vis;
+
     do {
         printf("\n===== MENU VISITANTES =====\n\n");
 
@@ -790,15 +1101,84 @@ void menuVisitantes(struct Parque *parque) {
         switch(opcion) {
             case 1:
                 /*funcion Registrar */
+                printf("Rut: ");
+                scanf("%s",rut);
+                printf("Nombre: ");
+                scanf("%s",nombre);
+                printf("Altura: ");
+                scanf("%f",&altura);
+                printf("Edad: ");
+                scanf("%d",&edad);
+
+                registrarVisitante(parque, rut, nombre, altura, edad);
+                pausa();
                 break;
             case 2:
                 /*funcion Buscar*/
+                printf("Rut: ");
+                scanf("%s",rut);
+
+                vis = buscarVisitante(parque->raizVisitantes,rut);
+                if(vis != NULL) {
+                    mostrarVisitante(vis);
+                }else {
+                    printf("\nVisitante no encontrado\n");
+                }
+                pausa();
                 break;
             case 3:
                 /*Funcion agregar entrada*/
+                printf("Rut visitante: ");
+                scanf("%s",rut);
+                vis = buscarVisitante(parque->raizVisitantes,rut);
+
+                if(vis != NULL){
+                    printf("\n===== TIPO DE ENTRADA =====\n");
+                    printf("1. General\n");
+                    printf("2. Rapida\n");
+                    printf("3. Familiar\n");
+                    printf("Seleccione opcion: ");
+                    scanf("%d",&opcionTipo);
+                    switch(opcionTipo){
+                        case 1:
+                            strcpy(tipo,"GENERAL");
+                            valor = 10000;
+                            break;
+                        case 2:
+                            strcpy(tipo,"RAPIDA");
+                            valor = 15000;
+                            break;
+                        case 3:
+                            strcpy(tipo,"FAMILIAR");
+                            valor = 30000;
+                            break;
+                        default:
+                            printf("\nTipo invalido.\n");
+                            pausa();
+                            break;
+                    }
+                    if(opcionTipo >= 1 && opcionTipo <= 3){
+                        agregarEntradaVisitante( parque, vis->visitante, rand()%10000, tipo, parque->fechaOperacion, valor, 0);
+                        printf("\nEntrada registrada correctamente.\n");
+                    }
+                }
+                else{
+                    printf("\nVisitante no encontrado.\n");
+                }
+                pausa();
                 break;
             case 4:
-                /*Funcion eliminar visitante*/\
+                /*Funcion eliminar visitante*/
+                printf("Rut visitante a eliminar: ");
+                scanf("%s", rut);
+
+                if(buscarVisitante(parque->raizVisitantes, rut) != NULL){
+                    parque->raizVisitantes = eliminarVisitante(parque->raizVisitantes, rut);
+                    printf("\nVisitante eliminado\n");
+                }else{
+                    printf("\nVisitante no encontrado\n");
+                }
+                pausa();
                 break;
             case 5:
                 break;
@@ -852,6 +1232,12 @@ void menuPrincipal(struct Parque *parque) {
 
 int main(void) {
     struct Parque *parque = NULL;
-    if (parque == NULL) parque = abrirParque("IBCLANDIA", "29/05/2026", 1000, MAX_ZONAS);
+    int cantZonas;
+    if (parque == NULL) {
+        printf("Indique maximo de zonas del parque: ");
+        scanf("%d", &cantZonas);
+        parque = abrirParque("IBCLANDIA", "29/05/2026", 1000, cantZonas);
+    }
+    printf("\n");
     menuPrincipal(parque);
 }
