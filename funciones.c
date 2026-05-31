@@ -11,7 +11,7 @@ struct Horario {
 struct Familia {
     char *rutResponsableFamiliar;
     char *apellidoFamilia;
-    int  cantidadIntegrantes;
+    int cantidadIntegrantes;
 };
 /*nodo para lista simple de familias*/
 struct NodoFamilia {
@@ -20,11 +20,11 @@ struct NodoFamilia {
 };
 
 struct Entrada {
-    int   idEntrada;
+    int idEntrada;
     char *tipoEntrada;
     char *fechaVisita;
     float valor;
-    int   estado; /* 0: no utilizada, 1: utilizada */
+    int estado; /* 0: no utilizada, 1: utilizada */
 };
 /* nodo para lista simple de entradas */
 struct NodoEntradas {
@@ -36,8 +36,8 @@ struct Visitante {
     char *rut;
     char *nombre;
     float altura;
-    int   edad;
-    int   dentroParque; /* 0: fuera del parque, 1: dentro del parque */
+    int edad;
+    int dentroParque; /* 0: fuera del parque, 1: dentro del parque */
     struct NodoEntradas *listaEntrada; /* head a la lista de entradas */
     struct Familia *familia;
 };
@@ -50,56 +50,53 @@ struct NodoVisitante {
 
 struct filaEspera {
     struct Visitante **cola;
-    int   maxCola;
-    int   cantidadEnFila;
-    int   estadoFila; /* 1 llena, 2 suspendida, 3 vacia, 4 aún con espacio*/
+    int maxCola;
+    int cantidadEnFila;
+    int estadoFila; /* 1 llena, 2 suspendida, 3 vacia, 4 aún con espacio*/
 };
 
 struct Atraccion {
-    int   idAtraccion;
+    int idAtraccion;
     char *nombreJuego;
-    int   estado; /* 0 cerrada por horario, 1 abierta, 2 en mantenimiento, 3 fuera de servicio */
-    int   capacidadDentroDeAtraccion;
-    int   duracionCiclo;
+    int estado; /* 0 cerrada por horario, 1 abierta, 2 en mantenimiento, 3 fuera de servicio */
+    int capacidadDentroDeAtraccion;
+    int duracionCiclo;
     float alturaMinima;
-    int   edadMinima;
-    int   totalAtendidos;
+    int edadMinima;
+    int totalAtendidos;
     struct filaEspera *fila; /* puntero a la fila de espera de la atracción */
 };
 
 struct Zona {
-    int   idZona;
+    int idZona;
     char *nombre;
     char *tematica;
     struct Horario horaApertura;
     struct Horario horaCierre;
-    int   numEncargados;
-    int   capacidadMaxima;
-    int   visitantesActuales;
-    int   estadoAforo;
+    int numEncargados;
+    int capacidadMaxima;
+    int visitantesActuales;
+    int estadoAforo;
     struct Atraccion **arrAtracciones;
-    int   cantAtraccion; /* cantidad de atracciones en la zona (pLibre)*/
+    int maxAtracciones; /* capacidad del arreglo — nunca cambia */
+    int cantAtraccion; /* cantidad de atracciones en la zona (pLibre)*/
 };
 
 struct Parque {
     char *nombre;
     char *fechaOperacion;
-    int   capacidadMaxima;
-    int   visitantesActuales;
-    int   totalVisitantesHoy;
-    int   totalEntradasVendidas;
-    int   totalEntradasUtilizadas;
+    int capacidadMaxima;
+    int visitantesActuales;
+    int totalVisitantesHoy;
+    int totalEntradasVendidas;
+    int totalEntradasUtilizadas;
     float ingresosTotales;
     struct Zona **zonas; /* arreglo compacto de punteros a zonas con tamaño MAX_ZONAS */
-    int   cantZonas; /* cantidad de zonas en el parque (pLibre)*/
+    int maxZonas; /* capacidad del arreglo — nunca cambia */
+    int cantZonas; /* cantidad de zonas en el parque (pLibre)*/
     struct NodoVisitante *raizVisitantes; /* raíz del ABB de visitantes */
     struct NodoFamilia *listaFamilias; /* head a la lista de familias */
 };
-
-
-
-
-
 
 
 
@@ -126,7 +123,8 @@ struct Parque *abrirParque(char *nombre, char *fecha, int maxCapacidad, int maxZ
   parqueCreado->totalEntradasVendidas = 0;
   parqueCreado->totalEntradasUtilizadas = 0;
   parqueCreado->ingresosTotales = 0.0;
-  parqueCreado->cantZonas = maxZonas;
+    parqueCreado->maxZonas = maxZonas; /*fijo*/ 
+    parqueCreado->cantZonas = 0; /*pLibre=0*/
     parqueCreado->zonas = (struct Zona**)malloc(maxZonas*sizeof(struct Zona*));
   parqueCreado->raizVisitantes = NULL;
   parqueCreado->listaFamilias = NULL;
@@ -226,7 +224,7 @@ struct NodoVisitante *buscarVisitante(struct NodoVisitante *raiz, char *rut) {
     return buscarVisitante(raiz->der, rut);
 }
 
-void registrarVisitante(struct Parque *parque, char rut, char nombre, float altura, int edad) {
+void registrarVisitante(struct Parque *parque, char *rut, char *nombre, float altura, int edad) {
     struct NodoVisitante *nuevo;
     if (parque == NULL) return;
 
@@ -338,9 +336,9 @@ struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario aper
   /* variables para hacer los conteos*/
   nueva->visitantesActuales = 0;
   nueva->estadoAforo = 0;
-  
-  /* el plibre*/
-  nueva->cantAtraccion = maxAtracciones;
+    
+    nueva->maxAtracciones = maxAtracciones; /* techo fijo: nunca cambia */ 
+    nueva->cantAtraccion = 0; /* pLibre: cambia al agregar/eliminar */
     nueva->arrAtracciones = (struct Atraccion**)malloc(maxAtracciones*sizeof(struct Atraccion*));
   return nueva;
 }
@@ -364,6 +362,10 @@ void agregarZona(struct Parque *elParque, struct Zona *nueva){
     
     if(elParque == NULL || nueva == NULL){
       /* quizás sería bueno agregar mensaje de error acá*/
+        return;
+    }
+    if (elParque->cantZonas >= elParque->maxZonas) {
+        printf("\nEl parque ya alcanzo el maximo de zonas.\n");
         return;
     }
 
@@ -610,6 +612,10 @@ void agregarAtraccionAZona(struct Zona *zonaSeleccionada, struct Atraccion *nuev
     if(zonaSeleccionada == NULL || nuevaAtraccion == NULL){
         return;
     }
+    *if (zonaSeleccionada->cantAtraccion >= zonaSeleccionada->maxAtracciones) {
+        printf("\nZona llena, no caben mas atracciones.\n");
+        return;
+    }
     /* Guardamos la atracción en base al pLibre actual y lo incrementamos */
     zonaSeleccionada->arrAtracciones[zonaSeleccionada->cantAtraccion] = nuevaAtraccion;
     zonaSeleccionada->cantAtraccion++;
@@ -677,7 +683,7 @@ void listarAtraccionesZona(struct Zona *zona){
     int i;
     if (zona == NULL) return;
 
-    printf("\nAtracciones de la zna:\n", zona->nombre);
+    printf("\nAtracciones de la zona: %s\n", zona->nombre);
 
     if (zona->cantAtraccion == 0) {
         printf("No hay atracciones en esta zona..\n");
@@ -1071,12 +1077,12 @@ void menuZonas(struct Parque *parque) {
                 printf("Tematica: ");
                 scanf("%s",tematica);
                 printf("Hora apertura: ");
-                scanf("%d",&apertura->hora);
+                scanf("%d",&apertura.hora);
                 printf("Hora cierre: ");
-                scanf("%d",&cierre->hora);
+                scanf("%d",&cierre.hora);
 
-                apertura->minuto = 0;
-                cierre->minuto = 0;
+                apertura.minuto = 0;
+                cierre.minuto = 0;
 
                 printf("Encargados: ");
                 scanf("%d",&encargados);
