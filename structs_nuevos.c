@@ -1,7 +1,3 @@
-/* parámetros de MAX tentativos*/
-#define MAX_ATRACCIONES 30
-#define MAX_ZONAS 30
-
 /* acá utilizaremos formato horario tipo militar*/
 struct Horario {
     int hora;
@@ -78,7 +74,7 @@ struct Zona {
     int   capacidadMaxima;
     int   visitantesActuales;
     int   estadoAforo;
-    struct Atraccion *arrAtracciones[MAX_ATRACCIONES]; /* arreglo compacto de punteros a atracciones con tamaño MAX_ATRACCIONES */
+    struct Atraccion **arrAtracciones; /* arreglo compacto de punteros a atracciones con tamaño MAX_ATRACCIONES */
     int   cantAtraccion; /* cantidad de atracciones en la zona (pLibre)*/
 };
 
@@ -91,7 +87,7 @@ struct Parque {
     int   totalEntradasVendidas;
     int   totalEntradasUtilizadas;
     float ingresosTotales;
-    struct Zona *zonas[MAX_ZONAS]; /* arreglo compacto de punteros a zonas con tamaño MAX_ZONAS */
+    struct Zona **zonas; /* arreglo compacto de punteros a zonas con tamaño MAX_ZONAS */
     int   cantZonas; /* cantidad de zonas en el parque (pLibre)*/
     struct NodoVisitante *raizVisitantes; /* raíz del ABB de visitantes */
     struct NodoFamilia *listaFamilias; /* head a la lista de familias */
