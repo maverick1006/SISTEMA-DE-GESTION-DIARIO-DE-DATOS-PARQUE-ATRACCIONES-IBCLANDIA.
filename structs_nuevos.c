@@ -75,6 +75,7 @@ struct Zona {
     int   visitantesActuales;
     int   estadoAforo;
     struct Atraccion **arrAtracciones; /* arreglo compacto de punteros a atracciones con tamaño MAX_ATRACCIONES */
+    int   maxatracciones;
     int   cantAtraccion; /* cantidad de atracciones en la zona (pLibre)*/
 };
 
