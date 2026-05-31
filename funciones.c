@@ -172,6 +172,49 @@ void agregarEntradaVisitante(struct Parque *parque, struct Visitante *visitante,
     printf("\nEntrada %d asignada con exito al visitante %s (RUT: %s).\n", id, visitante->nombre, visitante->rut);
 }
 
+struct NodoVisitante *minimoABB(struct NodoVisitante *raiz){
+    while(raiz != NULL && raiz->izq != NULL){
+        raiz = raiz->izq;
+    }
+    return raiz;
+}
+
+struct NodoVisitante *eliminarVisitante(struct NodoVisitante *raiz, char *rut){
+    struct NodoVisitante *temp;
+    if(raiz == NULL){
+        return NULL;
+    }
+    if(strcmp(rut, raiz->visitante->rut) < 0){
+        raiz->izq = eliminarVisitante(raiz->izq, rut);
+    }
+    else if(strcmp(rut, raiz->visitante->rut) > 0){
+        raiz->der = eliminarVisitante(raiz->der, rut);
+    }
+    else{
+        /* Caso 1: sin hijos */
+        if(raiz->izq == NULL && raiz->der == NULL){
+            free(raiz);
+            return NULL;
+        }
+        /* Caso 2: un hijo */
+        if(raiz->izq == NULL){
+            temp = raiz->der;
+            free(raiz);
+            return temp;
+        }
+        if(raiz->der == NULL){
+            temp = raiz->izq;
+            free(raiz);
+            return temp;
+        }
+        /* Caso 3: dos hijos */
+        temp = minimoABB(raiz->der);
+        raiz->visitante = temp->visitante;
+        raiz->der = eliminarVisitante(raiz->der, temp->visitante->rut);
+    }
+    return raiz;
+}
+
 /*============================= ZONAS ==================================================*/
 
 struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int cant_encargados, int maxVisitantes, int maxAtracciones){
@@ -1124,9 +1167,18 @@ void menuVisitantes(struct Parque *parque) {
                 }
                 pausa();
                 break;
-        }
             case 4:
-                /*Funcion eliminar visitante*/\
+                /*Funcion eliminar visitante*/
+                printf("Rut visitante a eliminar: ");
+                scanf("%s", rut);
+
+                if(buscarVisitante(parque->raizVisitantes, rut) != NULL){
+                    parque->raizVisitantes = eliminarVisitante(parque->raizVisitantes, rut);
+                    printf("\nVisitante eliminado\n");
+                }else{
+                    printf("\nVisitante no encontrado\n");
+                }
+                pausa();
                 break;
             case 5:
                 break;
