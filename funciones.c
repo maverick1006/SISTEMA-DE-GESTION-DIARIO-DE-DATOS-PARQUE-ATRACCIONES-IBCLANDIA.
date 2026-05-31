@@ -1,4 +1,5 @@
-#include <stddef.h>
+#include <stdio.h>
+#include <string.h>
 
 struct Parque *abrirParque(char *nombre, char *fecha, int maxCapacidad, int maxZonas){
 
@@ -715,8 +716,8 @@ void menuFamilias(struct Parque *parque) {
     char rut[20];
     char apellido[20];
     int integrantes;
-    struct Nodofamilia *nuevo;
-    struct Nodofamilia *encontrado;
+    struct NodoFamilia *nuevo;
+    struct NodoFamilia *encontrado;
     do {
         printf("\n===== MENU FAMILIAS =====\n\n");
 
