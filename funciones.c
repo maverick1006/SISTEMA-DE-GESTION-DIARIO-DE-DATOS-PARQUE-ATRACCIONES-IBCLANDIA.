@@ -316,7 +316,7 @@ struct NodoVisitante *eliminarVisitante(struct NodoVisitante *raiz, char *rut){
 
 /*============================= ZONAS ==================================================*/
 
-struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int cant_encargados, int maxVisitantes, int maxAtracciones){
+struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int cant_encargados, int maxVisitantes){
   struct Zona *nueva = NULL;
 
   nueva = (struct Zona*)malloc(sizeof(struct Zona));
@@ -335,8 +335,9 @@ struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario aper
   /* variables para hacer los conteos*/
   nueva->visitantesActuales = 0;
   nueva->estadoAforo = 0;
+    nueva->arrAtracciones = NULL;
     nueva->cantAtraccion = 0; /* pLibre: cambia al agregar/eliminar */
-    nueva->arrAtracciones = (struct Atraccion**)malloc(maxAtracciones*sizeof(struct Atraccion*));
+   
   return nueva;
 }
 
@@ -444,7 +445,7 @@ void registrarZona(struct Parque *parque, int id, char *nombre, char *tematica, 
     struct Zona *nueva;
 
     if (parque == NULL) return;
-    nueva = crearZona(id, nombre, tematica, apertura, cierre, encargados, capacidad, maxAtracciones);
+    nueva = crearZona(id, nombre, tematica, apertura, cierre, encargados, capacidad);
     agregarZona(parque,nueva);
 }
 
@@ -611,7 +612,7 @@ void agregarAtraccionAZona(struct Zona *zonaSeleccionada, struct Atraccion *nuev
         return;
     }
     temp = (struct Atraccion**)realloc(zonaSeleccionada->arrAtracciones,(zonaSeleccionada->cantAtraccion + 1) * sizeof(struct Atraccion*));
-    if(temp == NULL) return NULL;
+    if(temp == NULL) return;
     zonaSeleccionada->arrAtracciones = temp;
     zonaSeleccionada->arrAtracciones[zonaSeleccionada->cantAtraccion] = nuevaAtraccion;
     zonaSeleccionada->cantAtraccion++;
@@ -1082,10 +1083,8 @@ void menuZonas(struct Parque *parque) {
                 scanf("%d",&encargados);
                 printf("Capacidad: ");
                 scanf("%d",&capacidad);
-                printf("Cantidad de atracciones: ");
-                scanf("%d",&cantAtracciones);
 
-                registrarZona(parque, id, nombre, tematica, apertura, cierre, encargados, capacidad, cantAtracciones);
+                registrarZona(parque, id, nombre, tematica, apertura, cierre, encargados, capacidad);
                 pausa();
                 break;
             case 4:
