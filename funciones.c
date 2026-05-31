@@ -78,6 +78,7 @@ struct Zona {
     int visitantesActuales;
     int estadoAforo;
     struct Atraccion **arrAtracciones;
+    int maxatracciones;
     int cantAtraccion; /* cantidad de atracciones en la zona (pLibre)*/
 };
 
@@ -91,8 +92,8 @@ struct Parque {
     int totalEntradasUtilizadas;
     float ingresosTotales;
     struct Zona **zonas; /* arreglo compacto de punteros a zonas con tamaño MAX_ZONAS */
-    int maxZonas; /* capacidad del arreglo — nunca cambia */
-    int cantZonas; /* cantidad de zonas en el parque (pLibre)*/
+    int maxZonas; /* capacidad del arreglo — nunca cambia (pLibre) */
+    int cantZonas; /* cantidad de zonas en el parque*/
     struct NodoVisitante *raizVisitantes; /* raíz del ABB de visitantes */
     struct NodoFamilia *listaFamilias; /* head a la lista de familias */
 };
@@ -316,29 +317,26 @@ struct NodoVisitante *eliminarVisitante(struct NodoVisitante *raiz, char *rut){
 
 /*============================= ZONAS ==================================================*/
 
-struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int cant_encargados, int maxVisitantes){
-  struct Zona *nueva = NULL;
+struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int cant_encargados, int maxVisitantes, int maxAtracciones){
+    struct Zona *nueva;
+    
+    nueva = (struct Zona*)malloc(sizeof(struct Zona));
+    nueva->idZona = id;
+    nueva->nombre = (char*)malloc(strlen(nombre)+1);
+    strcpy(nueva->nombre,nombre);
+    nueva->tematica = (char*)malloc(strlen(tematica)+1);
+    strcpy(nueva->tematica,tematica);
+    nueva->horaApertura = apertura;
+    nueva->horaCierre = cierre;
+    nueva->numEncargados = cant_encargados;
+    nueva->capacidadMaxima = maxVisitantes;
+    nueva->visitantesActuales = 0;
+    nueva->estadoAforo = 0;
+    nueva->maxatracciones = maxAtracciones;
+    nueva->cantAtraccion = 0;
 
-  nueva = (struct Zona*)malloc(sizeof(struct Zona));
-  nueva->nombre = (char*)malloc(strlen(nombre)+1);
-  strcpy(nueva->nombre, nombre);
-
-  nueva->tematica = (char*)malloc(strlen(tematica)+1);
-  strcpy(nueva->tematica, tematica);
-
-  nueva->horaApertura = apertura;
-  nueva->horaCierre = cierre;
-  nueva->idZona = id;
-  nueva->numEncargados = cant_encargados;
-  nueva->capacidadMaxima = maxVisitantes;
-  
-  /* variables para hacer los conteos*/
-  nueva->visitantesActuales = 0;
-  nueva->estadoAforo = 0;
-    nueva->arrAtracciones = NULL;
-    nueva->cantAtraccion = 0; /* pLibre: cambia al agregar/eliminar */
-   
-  return nueva;
+    nueva->arrAtracciones =(struct Atraccion**)malloc(maxAtracciones * sizeof(struct Atraccion*));
+    return nueva;
 }
 
 struct Zona *buscarZona(struct Parque *elParque, int idBuscar){
@@ -607,13 +605,14 @@ struct Atraccion *crearAtraccion(int id, char *nombre, int estado, int capacidad
 }
 
 void agregarAtraccionAZona(struct Zona *zonaSeleccionada, struct Atraccion *nuevaAtraccion){
-    struct Atraccion **temp;
     if(zonaSeleccionada == NULL || nuevaAtraccion == NULL){
         return;
     }
-    temp = (struct Atraccion**)realloc(zonaSeleccionada->arrAtracciones,(zonaSeleccionada->cantAtraccion + 1) * sizeof(struct Atraccion*));
-    if(temp == NULL) return;
-    zonaSeleccionada->arrAtracciones = temp;
+    if(zonaSeleccionada->cantAtraccion >= zonaSeleccionada->maxatracciones){
+        printf("\nNo hay espacio para mas atracciones\n");
+        return;
+       }
+
     zonaSeleccionada->arrAtracciones[zonaSeleccionada->cantAtraccion] = nuevaAtraccion;
     zonaSeleccionada->cantAtraccion++;
 }
