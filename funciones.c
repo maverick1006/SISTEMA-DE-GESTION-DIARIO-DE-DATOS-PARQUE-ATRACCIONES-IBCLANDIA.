@@ -78,7 +78,6 @@ struct Zona {
     int visitantesActuales;
     int estadoAforo;
     struct Atraccion **arrAtracciones;
-    int maxAtracciones; /* capacidad del arreglo — nunca cambia */
     int cantAtraccion; /* cantidad de atracciones en la zona (pLibre)*/
 };
 
@@ -336,8 +335,6 @@ struct Zona *crearZona(int id, char *nombre, char *tematica, struct Horario aper
   /* variables para hacer los conteos*/
   nueva->visitantesActuales = 0;
   nueva->estadoAforo = 0;
-    
-    nueva->maxAtracciones = maxAtracciones; /* techo fijo: nunca cambia */ 
     nueva->cantAtraccion = 0; /* pLibre: cambia al agregar/eliminar */
     nueva->arrAtracciones = (struct Atraccion**)malloc(maxAtracciones*sizeof(struct Atraccion*));
   return nueva;
@@ -443,7 +440,7 @@ void eliminarZona(struct Parque *elParque, int idBuscar) {
         printf("\nzona de id %d no encontrada dentro del parque.\n", idBuscar);
     }
 }
-void registrarZona(struct Parque *parque, int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int encargados, int capacidad, int maxAtracciones) {
+void registrarZona(struct Parque *parque, int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int encargados, int capacidad) {
     struct Zona *nueva;
 
     if (parque == NULL) return;
@@ -609,18 +606,15 @@ struct Atraccion *crearAtraccion(int id, char *nombre, int estado, int capacidad
 }
 
 void agregarAtraccionAZona(struct Zona *zonaSeleccionada, struct Atraccion *nuevaAtraccion){
+    struct Atraccion **temp;
     if(zonaSeleccionada == NULL || nuevaAtraccion == NULL){
         return;
     }
-    *if (zonaSeleccionada->cantAtraccion >= zonaSeleccionada->maxAtracciones) {
-        printf("\nZona llena, no caben mas atracciones.\n");
-        return;
-    }
-    /* Guardamos la atracción en base al pLibre actual y lo incrementamos */
+    temp = (struct Atraccion**)realloc(zonaSeleccionada->arrAtracciones,(zonaSeleccionada->cantAtraccion + 1) * sizeof(struct Atraccion*));
+    if(temp == NULL) return NULL;
+    zonaSeleccionada->arrAtracciones = temp;
     zonaSeleccionada->arrAtracciones[zonaSeleccionada->cantAtraccion] = nuevaAtraccion;
     zonaSeleccionada->cantAtraccion++;
-    
-    /* quizás sería bueno agregar mensaje de que sepudo acá */
 }
 
 /* funciona tal cuál como un compactar que vimos en el módulo 1*/
