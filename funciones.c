@@ -214,14 +214,20 @@ void mostrarVisitante(struct NodoVisitante *nodo) {
         printf("Familia   : %s\n", nodo->visitante->familia->apellidoFamilia);
 }
 
-/* Busqueda en ABB por RUT — algoritmo de busqueda en estructura compleja */
-struct NodoVisitante *buscarVisitante(struct NodoVisitante *raiz, char *rut) {
-    int cmp;
-    if (raiz == NULL) return NULL;
+/* función recursiva que nos ayuda a realizar la búsqueda binaria en el árbol, ya que era necesario agregar un buscar para cada estructura existente */
+struct NodoVisitante *buscarVisitante(struct NodoVisitante *raiz, char *rut){
+    int cmp; /* variable auxiliar para hacer ls distintas comparaciones*/
+    
+    if (raiz == NULL) return NULL; /* si la raíz es NULL, retornamos NULL*/
+
+    /* comparación del rut a buscar con el nodo actual*/
     cmp = strcmp(rut, raiz->visitante->rut);
-    if (cmp == 0) return raiz;
-    if (cmp < 0)  return buscarVisitante(raiz->izq, rut);
-    return buscarVisitante(raiz->der, rut);
+
+    if (cmp == 0) return raiz; /* si es igual a 0, significa que lo hemos encontrado y retornamos la raíz*/
+
+    if (cmp < 0)  return buscarVisitante(raiz->izq, rut); /* si es menor a 0 el resultado, seguirmos buscando por la izq*/
+    
+    return buscarVisitante(raiz->der, rut); /* en el caso contrario de ser mayor a 0, seguimos con la búsqueda pero por la derecha*/
 }
 
 void registrarVisitante(struct Parque *parque, char *rut, char *nombre, float altura, int edad) {
@@ -272,7 +278,9 @@ void agregarEntradaVisitante(struct Parque *parque, struct Visitante *visitante,
     printf("\nEntrada %d asignada con exito al visitante %s (RUT: %s).\n", id, visitante->nombre, visitante->rut);
 }
 
+/* función utilizada cuando eliminamos a un nodo de tipo padre, que tiene hijos a su izq y derecha, para encontrarle un reemplazo*/
 struct NodoVisitante *minimoABB(struct NodoVisitante *raiz){
+    
     while(raiz != NULL && raiz->izq != NULL){
         raiz = raiz->izq;
     }
