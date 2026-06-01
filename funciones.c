@@ -238,7 +238,7 @@ void registrarVisitante(struct Parque *parque, char *rut, char *nombre, float al
 
     existe = buscarVisitante(parque->raizVisitantes, rut);
     /* validación por si, ya existe un visitante con ese rut, llamando a nuestra función buscarVisitante y si retorna algo que no sea NULL, significa que ya existía*/
-    if(existente != NULL){
+    if(existe != NULL){
         printf("\nYa existe un visitante con el rut: %s.\n", rut);
         return;
     }
