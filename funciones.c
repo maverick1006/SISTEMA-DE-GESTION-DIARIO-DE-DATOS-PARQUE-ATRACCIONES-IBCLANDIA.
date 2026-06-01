@@ -1011,7 +1011,7 @@ void menuAtraccion(struct Parque *parque) {
                     printf("ID atraccion: ");
                     scanf("%d",&id);
                     printf("Nombre: ");
-                    scanf("%s",nombre);
+                    scanf(" %[^\n]", nombre);
                     printf("Estado: ");
                     scanf("%d",&estado);
                     printf("Capacidad: ");
@@ -1092,9 +1092,9 @@ void menuZonas(struct Parque *parque) {
                 printf("ID: ");
                 scanf("%d",&id);
                 printf("Nombre: ");
-                scanf("%s",nombre);
+                scanf(" %[^\n]", nombre);
                 printf("Tematica: ");
-                scanf("%s",tematica);
+                scanf(" %[^\n]", tematica);
                 printf("Hora apertura: ");
                 scanf("%d",&apertura.hora);
                 printf("Hora cierre: ");
@@ -1152,7 +1152,7 @@ void menuFamilias(struct Parque *parque) {
                 printf("Rut responsable: ");
                 scanf("%s", rut);
                 printf("Apellido familia: ");
-                scanf("%s", apellido);
+                scanf(" %[^\n]", apellido);
                 printf("Cantidad integrantes: ");
                 scanf("%d", &integrantes);
 
@@ -1225,7 +1225,7 @@ void menuVisitantes(struct Parque *parque) {
                 printf("Rut: ");
                 scanf("%s",rut);
                 printf("Nombre: ");
-                scanf("%s",nombre);
+                scanf(" %[^\n]", nombre);
                 printf("Altura: ");
                 scanf("%f",&altura);
                 printf("Edad: ");
