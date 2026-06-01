@@ -1121,11 +1121,15 @@ void menuAtraccion(struct Parque *parque) {
                 }
                 pausa();
                 break;
+            case 9:
+                
+                break;
+            
             default:
                 printf("Opcion no valida\n");
                 pausa();
         }
-    }while(opcion != 8);
+    }while(opcion != 9);
 }
 
 void menuZonas(struct Parque *parque) {
@@ -1458,7 +1462,7 @@ void menuVisitantes(struct Parque *parque) {
                 printf("Opcion no valida\n");
                 pausa();
         }
-    }while(opcion != 6);
+    }while(opcion != 9);
 }
 
 void menuPrincipal(struct Parque *parque) {
