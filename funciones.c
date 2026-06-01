@@ -1213,7 +1213,7 @@ void menuVisitantes(struct Parque *parque) {
         printf("2. Buscar visitante\n");
         printf("3. Registrar Entrada visitante\n");
         printf("4. Eliminar Visitante\n");
-        printf("5. Listar Vistantes")
+        printf("5. Listar Vistantes\n");
         printf("6. Volver\n");
 
         printf("\nseleccione opcion: ");
