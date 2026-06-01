@@ -1140,7 +1140,7 @@ void menuFamilias(struct Parque *parque) {
         printf("1. Registrar familia\n");
         printf("2. Buscar familia\n");
         printf("3. Eliminar familia\n");
-        printf("4. Listar familias");
+        printf("4. Listar familias\n");
         printf("5. volver\n");
 
         printf("\nSelecciona una opcion: ");
