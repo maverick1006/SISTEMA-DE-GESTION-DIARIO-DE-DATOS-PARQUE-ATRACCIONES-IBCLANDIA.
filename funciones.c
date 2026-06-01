@@ -936,7 +936,8 @@ void menuAtraccion(struct Parque *parque) {
         printf("5. Mostrar Fila\n");
         printf("6. Eliminar atraccion\n");
         printf("7. Registrar atraccion\n");
-        printf("8. Salir\n");
+        printf("8. Listar atracciones de una zona con su ID\n");
+        printf("9. Salir\n");
 
         printf("\nSelecciona una opcion: ");
         scanf("%d", &opcion);
@@ -1049,6 +1050,17 @@ void menuAtraccion(struct Parque *parque) {
                 pausa();
                 break;
             case 8:
+                /*funcion Eliminar atraccion*/
+                printf("Ingrese el ID de la zona: ");
+                scanf("%d",&idZona);
+
+                zona = buscarZona(parque,idZona);
+                if(zona != NULL){
+                    listarAtraccionesZona(zona)
+                }else{
+                    printf("\nLa zona no existe\n");
+                }
+                pausa();
                 break;
             default:
                 printf("Opcion no valida\n");
@@ -1076,7 +1088,8 @@ void menuZonas(struct Parque *parque) {
         printf("2. Cambiar estado\n");
         printf("3. Registrar zona\n");
         printf("4. Eliminar zona\n");
-        printf("5. Volver\n");
+        printf("5. Listar zonas\n");
+        printf("6. Volver\n");
 
         printf("\nSelecciona una opcion: ");
         scanf("%d", &opcion);
@@ -1142,6 +1155,8 @@ void menuZonas(struct Parque *parque) {
                 pausa();
                 break;
             case 5:
+                listarZonas(parque);
+                pausa();
                 break;
             default:
                 printf("Opcion no valida\n");
