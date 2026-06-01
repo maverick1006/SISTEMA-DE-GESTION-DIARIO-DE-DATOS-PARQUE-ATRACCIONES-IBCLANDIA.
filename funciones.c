@@ -1530,4 +1530,6 @@ int main(void) {
     }
     printf("\n");
     menuPrincipal(parque);
+
+    return 0;
 }
