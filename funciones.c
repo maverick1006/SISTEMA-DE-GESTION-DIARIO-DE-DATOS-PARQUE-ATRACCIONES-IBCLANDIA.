@@ -24,7 +24,7 @@ struct Entrada {
     char *tipoEntrada;
     char *fechaVisita;
     float valor;
-    int estado; /* 0: no utilizada, 1: utilizada */
+    int estado; /* 0: no utilizada, 1: utilizada, 2: anulada, 3: vencida */
 };
 /* nodo para lista simple de entradas */
 struct NodoEntradas {
