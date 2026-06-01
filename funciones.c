@@ -1115,7 +1115,8 @@ void menuFamilias(struct Parque *parque) {
         printf("1. Registrar familia\n");
         printf("2. Buscar familia\n");
         printf("3. Eliminar familia\n");
-        printf("4. volver\n");
+        printf("4. Listar familias");
+        printf("5. volver\n");
 
         printf("\nSelecciona una opcion: ");
         scanf("%d", &opcion);
@@ -1157,11 +1158,13 @@ void menuFamilias(struct Parque *parque) {
                 break;
             case 4:
                 break;
+            case 5:
+                break;
             default:
                 printf("Opcion no valida\n");
                 pausa();
         }
-    }while(opcion != 4);
+    }while(opcion != 5);
 }
 
 void menuVisitantes(struct Parque *parque) {
@@ -1183,7 +1186,8 @@ void menuVisitantes(struct Parque *parque) {
         printf("2. Buscar visitante\n");
         printf("3. Registrar Entrada visitante\n");
         printf("4. Eliminar Visitante\n");
-        printf("5. Volver\n");
+        printf("5. Listar Vistantes")
+        printf("6. Volver\n");
 
         printf("\nseleccione opcion: ");
         scanf("%d", &opcion);
@@ -1271,12 +1275,16 @@ void menuVisitantes(struct Parque *parque) {
                 pausa();
                 break;
             case 5:
+                listarVisitantes(parque->raizVisitantes);
+                pausa();
+                break;
+            case 6:
                 break;
             default:
                 printf("Opcion no valida\n");
                 pausa();
         }
-    }while(opcion != 5);
+    }while(opcion != 6);
 }
 
 void menuPrincipal(struct Parque *parque) {
