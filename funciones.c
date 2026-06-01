@@ -286,18 +286,22 @@ struct NodoVisitante *minimoABB(struct NodoVisitante *raiz){
     }
     return raiz;
 }
-
+/* búsqueda de un visitante por su rut, eliminandolo sin desarmar el árbol*/
 struct NodoVisitante *eliminarVisitante(struct NodoVisitante *raiz, char *rut){
-    struct NodoVisitante *temp;
+    
+    struct NodoVisitante *temp = NULL; /* creación de variable temporal*/
+
+    /* validación por si raíz es NULL*/
     if(raiz == NULL){
         return NULL;
     }
+    /* sI el rut a buscar es menor, seguimos buscando por la izq*/
     if(strcmp(rut, raiz->visitante->rut) < 0){
         raiz->izq = eliminarVisitante(raiz->izq, rut);
-    }
+    }/*en caso de ser mayor, lo hacemos al revés, buscando por la derecha*/
     else if(strcmp(rut, raiz->visitante->rut) > 0){
         raiz->der = eliminarVisitante(raiz->der, rut);
-    }
+    }/*y cómo ultimo caso de ya encontrarse el rut solicitado procedemos con la eliminación de x visitante del árbol*/
     else{
         /* Caso 1: sin hijos */
         if(raiz->izq == NULL && raiz->der == NULL){
@@ -315,11 +319,12 @@ struct NodoVisitante *eliminarVisitante(struct NodoVisitante *raiz, char *rut){
             free(raiz);
             return temp;
         }
-        /* Caso 3: dos hijos */
+        /* Caso 3: dos hijos, acá llamamos a minimoABB, buscando un reemplazo para ese nodo padre que se desea eliminar*/
         temp = minimoABB(raiz->der);
         raiz->visitante = temp->visitante;
         raiz->der = eliminarVisitante(raiz->der, temp->visitante->rut);
     }
+    /* finalmente retornamos nuevo árbol ocon los cambios solicitados*/
     return raiz;
 }
 
