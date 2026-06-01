@@ -796,9 +796,9 @@ void agregarVisitanteAFila(struct Atraccion *atraccion, struct Visitante *visita
     if(atraccion == NULL || visitante == NULL) return;
 
     if(visitante->altura < atraccion->alturaMinima || visitante->edad < atraccion->edadMinima) {
-        printf("\nVisitante no puede hacer file, ya que no cumple con requisitos de altura y/o edad.\n");
+        printf("\nVisitante no puede hacer fila, ya que no cumple con requisitos de altura y/o edad.\n");
         return;
-
+    }
     if(atraccion->fila->cantidadEnFila >= atraccion->fila->maxCola){
         printf("\nFila llena.\n");
         return;
