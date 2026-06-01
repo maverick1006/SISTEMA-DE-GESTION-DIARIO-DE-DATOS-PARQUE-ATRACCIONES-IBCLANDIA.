@@ -460,11 +460,11 @@ void eliminarZona(struct Parque *elParque, int idBuscar) {
         printf("\nzona de id %d no encontrada dentro del parque.\n", idBuscar);
     }
 }
-void registrarZona(struct Parque *parque, int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int encargados, int capacidad) {
+void registrarZona(struct Parque *parque, int id, char *nombre, char *tematica, struct Horario apertura, struct Horario cierre, int encargados, int capacidad, int maxAtracciones) {
     struct Zona *nueva;
 
     if (parque == NULL) return;
-    nueva = crearZona(id, nombre, tematica, apertura, cierre, encargados, capacidad);
+    nueva = crearZona(id, nombre, tematica, apertura, cierre, encargados, capacidad, maxAtracciones);
     agregarZona(parque,nueva);
 }
 
@@ -1128,8 +1128,10 @@ void menuZonas(struct Parque *parque) {
                 scanf("%d",&encargados);
                 printf("Capacidad: ");
                 scanf("%d",&capacidad);
-
-                registrarZona(parque, id, nombre, tematica, apertura, cierre, encargados, capacidad);
+                printf("Maximo de atracciones: ");
+                scanf("%d",&cantAtracciones);
+                
+                registrarZona(parque, id, nombre, tematica, apertura, cierre, encargados, capacidad,cantAtracciones);
                 pausa();
                 break;
             case 4:
