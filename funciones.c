@@ -1480,7 +1480,7 @@ void menuVisitantes(struct Parque *parque, int *contadorIdEntrada) {
     }while(opcion != 9);
 }
 
-void menuPrincipal(struct Parque *parque) {
+void menuPrincipal(struct Parque *parque, int *contadorIdEntrada) {
     int opcion;
     do {
         printf("\n===== IBCLANDIA =====\n\n");
