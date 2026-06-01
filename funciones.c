@@ -1221,11 +1221,14 @@ void menuZonas(struct Parque *parque) {
                 listarZonas(parque);
                 pausa();
                 break;
+            case 6:
+                break;
+            
             default:
                 printf("Opcion no valida\n");
                 pausa();
         }
-    }while(opcion != 5);
+    }while(opcion != 6);
 }
 
 void menuFamilias(struct Parque *parque) {
