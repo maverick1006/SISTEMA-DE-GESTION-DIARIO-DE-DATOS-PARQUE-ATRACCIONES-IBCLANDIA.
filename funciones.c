@@ -100,7 +100,7 @@ struct Parque {
 
 
 
-/*========================== inicializacion del parque ==========================================*/
+/*========================== inicializacion del parque + ingresos/salidas visitantes + cambiarEstadoEntradas ==========================================*/
 struct Parque *abrirParque(char *nombre, char *fecha, int maxCapacidad, int maxZonas){
 
   struct Parque *parqueCreado = NULL;
@@ -130,6 +130,57 @@ struct Parque *abrirParque(char *nombre, char *fecha, int maxCapacidad, int maxZ
   parqueCreado->listaFamilias = NULL;
 
   return parqueCreado;
+}
+
+void validaIngresoParque(struct Parque *parque, struct Visitante *visitante){
+    if (parque == NULL || visitante == NULL) return;
+    if (visitante->dentroParque == 1) {
+        printf("\nEl visitante con RUT %s ya está dentro del parque.\n", visitante->rut);
+        return;
+    }
+    visitante->dentroParque = 1;
+    parque->visitantesActuales++;
+    printf("\nVisitante con RUT %s ingresó al parque.\n", visitante->rut);
+}
+
+void validarSalidaParque(struct Parque *parque, struct Visitante *visitante){
+    if (parque == NULL || visitante == NULL) return;
+    if (visitante->dentroParque == 0) {
+        printf("\nEl visitante con RUT %s no se encuentra dentro del parque.\n", visitante->rut);
+        return;
+    }
+    visitante->dentroParque = 0;
+    parque->visitantesActuales--;
+    printf("\nVisitante con RUT %s salió del parque.\n", visitante->rut);
+}
+
+void modificarEstadoEntrada(struct Parque *parque, struct Visitante *visitante, int idEntrada, int nuevoEstado){
+    
+    struct NodoEntradas *actual = NULL;
+
+    if (parque == NULL || visitante == NULL) return;
+
+    actual = visitante->listaEntrada;
+
+    while (actual != NULL) {
+        if (actual->entrada->idEntrada == idEntrada) {
+            /* acá asignamos el nuevo estado, 0 (no utilizada) 1 (usada) 2 (anulada) y 3 (vencida)*/
+            actual->entrada->estado = nuevoEstado;
+            printf("\nEstado entrada %d modificado a %d.\n", idEntrada, nuevoEstado);
+
+            /* hipotético caso de que alguien no esté en el parque, y se le active su entrada manualmnete, pasa a ser visitante actual +1*/
+            if (nuevoEstado == 1 && visitante->dentroParque == 0) {
+                visitante->dentroParque = 1;
+                parque->totalEntradasUtilizadas++;
+                parque->visitantesActuales++;
+                printf("¡El visitante con RUT %s ha validado su entrada y ha ingresado al parque!\n", visitante->rut);
+            }
+
+            return;
+        }
+        actual = actual->sig;
+    }
+    printf("\nEntrada con ID %d no se encontró del visitante RUT %s.\n", idEntrada, visitante->rut);
 }
 
 /*==================================== visitantes ============================================================*/
@@ -1246,6 +1297,8 @@ void menuVisitantes(struct Parque *parque) {
     int edad;
     float altura;
     float valor;
+    int idEntrada; 
+    int nuevoEstado;
     char rut[20];
     char nombre[50];
     char tipo[20];
@@ -1260,7 +1313,10 @@ void menuVisitantes(struct Parque *parque) {
         printf("3. Registrar Entrada visitante\n");
         printf("4. Eliminar Visitante\n");
         printf("5. Listar Vistantes\n");
-        printf("6. Volver\n");
+        printf("6. Modificar estado de Entrada visitante\n");
+        printf("7. Validar ingreso visitante\n");
+        printf("8. Validar salida visitante\n");
+        printf("9. Volver\n");
 
         printf("\nseleccione opcion: ");
         scanf("%d", &opcion);
@@ -1352,6 +1408,51 @@ void menuVisitantes(struct Parque *parque) {
                 pausa();
                 break;
             case 6:
+                printf("Rut visitante: ");
+                scanf("%19s", rut);
+                vis = buscarVisitante(parque->raizVisitantes, rut);
+                
+                if(vis != NULL){
+                    printf("ID de la Entrada: ");
+                    scanf("%d", &idEntrada);
+                    printf("Nuevo estado (1 = Utilizada, 0 = No utilizada): ");
+                    scanf("%d", &nuevoEstado);
+                    modificarEstadoEntrada(parque, vis->visitante, idEntrada, nuevoEstado);
+                } else {
+                    printf("\nVisitante no encontrado.\n");
+                }
+                pausa();
+                break;
+            case 7:
+                /* Ingresar al parque */
+                printf("Rut del visitante: ");
+                scanf("%19s", rut);
+                /* Primero buscamos si el visitante existe en el sistema */
+                vis = buscarVisitante(parque->raizVisitantes, rut);
+                
+                if (vis != NULL) {
+                    /* Si existe, le pasamos el puntero a tu funcion */
+                    validaIngresoParque(parque, vis->visitante); 
+                } else {
+                    printf("\nVisitante no encontrado.\n");
+                }
+                pausa();
+                break;
+            case 8:
+                /* Salir del parque */
+                printf("Rut del visitante: ");
+                scanf("%19s", rut);
+                vis = buscarVisitante(parque->raizVisitantes, rut);
+                
+                if (vis != NULL) {
+                    /* Lo mismo aquí, usamos tu otra funcion */
+                    validarSalidaParque(parque, vis->visitante); 
+                } else {
+                    printf("\nVisitante no encontrado.\n");
+                }
+                pausa();
+                break;
+            case 9:
                 break;
             default:
                 printf("Opcion no valida\n");
