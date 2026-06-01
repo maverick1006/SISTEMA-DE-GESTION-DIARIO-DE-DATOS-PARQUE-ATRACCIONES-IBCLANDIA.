@@ -94,9 +94,8 @@ struct NodoNuevoElemento {
 ### Al agregar funciones
 
 - El nombre debe describir claramente lo que hace: `buscarVisitantePorRut`, `agregarEntradaAVisitante`
-- Una función debe hacer **una sola cosa**
+
 - Si la función puede recibir `NULL`, valídalo al inicio:
-```c
 if (parametro == NULL) return NULL;
 ```
 
@@ -117,15 +116,10 @@ if (parametro == NULL) return NULL;
 
 ---
 
-## Convenciones de código
-
-- **Nombres en camelCase:** `buscarVisitante`, `totalAtendidos`
-- **Punteros con `*` pegado al tipo:** `char *nombre`, `struct Zona **zonas`
-- **Comentarios solo cuando el propósito no es obvio**
-- **Indentación con tabs**
-
----
-
 ## Autores
 
 - Matias Santelices Sepulveda — estructura base del proyecto
+- Gonzalo Morales 
+- Martin Lira
+- Diego Aguilar
+- Amanda Letelier
