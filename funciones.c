@@ -906,8 +906,8 @@ void mostrarFila(struct Atraccion *atraccion){
 
 void pausa() {
     printf("\n\nPresione ENTER...");
-    getchar();
-    getchar();
+    (void)getchar();
+    (void)getchar();
 }
 
 void menuReportes(struct Parque *parque) {
