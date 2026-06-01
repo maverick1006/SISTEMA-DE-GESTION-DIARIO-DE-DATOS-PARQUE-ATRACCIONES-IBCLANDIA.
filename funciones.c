@@ -1305,7 +1305,7 @@ void menuFamilias(struct Parque *parque) {
     }while(opcion != 5);
 }
 
-void menuVisitantes(struct Parque *parque) {
+void menuVisitantes(struct Parque *parque, int *contadorIdEntrada) {
     int opcion;
     int opcionTipo;
     int edad;
@@ -1395,7 +1395,8 @@ void menuVisitantes(struct Parque *parque) {
                             break;
                     }
                     if(opcionTipo >= 1 && opcionTipo <= 3){
-                        agregarEntradaVisitante( parque, vis->visitante, rand()%10000, tipo, parque->fechaOperacion, valor, 0);
+                        agregarEntradaVisitante( parque, vis->visitante, *contadorIdEntrada, tipo, parque->fechaOperacion, valor, 0);
+                        (*contadorIdEntrada)++;
                         printf("\nEntrada registrada correctamente.\n");
                     }
                 }
@@ -1523,13 +1524,14 @@ void menuPrincipal(struct Parque *parque) {
 int main(void) {
     struct Parque *parque = NULL;
     int cantZonas;
+    int contadorIdEntrada = 1;
     if (parque == NULL) {
         printf("Indique maximo de zonas del parque: ");
         scanf("%d", &cantZonas);
         parque = abrirParque("IBCLANDIA", "29/05/2026", 1000, cantZonas);
     }
     printf("\n");
-    menuPrincipal(parque);
+    menuPrincipal(parque, &contadorIdEntrada);
 
     return 0;
 }
