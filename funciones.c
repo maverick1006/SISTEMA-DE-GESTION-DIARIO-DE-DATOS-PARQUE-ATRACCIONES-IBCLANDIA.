@@ -1056,7 +1056,7 @@ void menuAtraccion(struct Parque *parque) {
 
                 zona = buscarZona(parque,idZona);
                 if(zona != NULL){
-                    listarAtraccionesZona(zona)
+                    listarAtraccionesZona(zona);
                 }else{
                     printf("\nLa zona no existe\n");
                 }
