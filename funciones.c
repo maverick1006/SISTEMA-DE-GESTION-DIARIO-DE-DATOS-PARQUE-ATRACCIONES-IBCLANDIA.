@@ -407,6 +407,8 @@ void mostrarZona(struct Zona *zona) {
     printf("\nID Zonas: %d", zona->idZona);
     printf("\nNombre: %s", zona->nombre);
     printf("\nTematica: %s", zona->tematica);
+    printf("\nHora de apertura: %d:%d", zona->horaApertura.hora, zona->horaApertura.minuto);
+    printf("\nHora de cierre: %d:%d", zona->horaCierre.hora, zona->horaCierre.minuto);
     printf("\nTemporada: %c", zona->horaApertura.temporada);
     printf("\nNumero de encargados: %d", zona->numEncargados);
     printf("\nVisitantes actuales: %d", zona->visitantesActuales);
