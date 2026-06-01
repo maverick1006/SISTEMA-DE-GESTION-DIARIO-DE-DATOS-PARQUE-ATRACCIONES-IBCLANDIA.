@@ -231,9 +231,17 @@ struct NodoVisitante *buscarVisitante(struct NodoVisitante *raiz, char *rut){
 }
 
 void registrarVisitante(struct Parque *parque, char *rut, char *nombre, float altura, int edad) {
-    struct NodoVisitante *nuevo;
+    struct NodoVisitante *nuevo = NULL;
+    /* variable utilizada como aux para la validación de si ese rut ya está registrado*/
+    struct NodoVisitante *existe = NULL;
     if (parque == NULL) return;
 
+    existe = buscarVisitante(parque->raizVisitantes, rut);
+    /* validación por si, ya existe un visitante con ese rut, llamando a nuestra función buscarVisitante y si retorna algo que no sea NULL, significa que ya existía*/
+    if(existente != NULL){
+        printf("\nYa existe un visitante con el rut: %s.\n", rut);
+        return;
+    }
     nuevo = crearVisitante(rut, nombre, altura, edad);
     parque->raizVisitantes = insertarVisitanteArbol(parque->raizVisitantes, nuevo);
     parque->totalVisitantesHoy++;
