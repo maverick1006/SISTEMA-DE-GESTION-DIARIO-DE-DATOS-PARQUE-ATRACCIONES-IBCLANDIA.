@@ -1182,6 +1182,8 @@ void menuFamilias(struct Parque *parque) {
                 pausa();
                 break;
             case 4:
+                listarFamilias(parque);
+                pausa();
                 break;
             case 5:
                 break;
