@@ -1398,11 +1398,15 @@ void menuVisitantes(struct Parque *parque) {
                 pausa();
                 break;
             case 4:
-                /*Funcion eliminar visitante*/
                 printf("Rut visitante a eliminar: ");
                 scanf("%s", rut);
+                
+                vis = buscarVisitante(parque->raizVisitantes, rut);
 
-                if(buscarVisitante(parque->raizVisitantes, rut) != NULL){
+                if(vis != NULL){
+                    if(vis->visitante->dentroParque == 1){
+                        validarSalidaParque(parque, vis->visitante);
+                    }
                     parque->raizVisitantes = eliminarVisitante(parque->raizVisitantes, rut);
                     printf("\nVisitante eliminado\n");
                 }else{
