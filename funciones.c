@@ -1426,7 +1426,7 @@ void menuVisitantes(struct Parque *parque) {
                 if(vis != NULL){
                     printf("ID de la Entrada: ");
                     scanf("%d", &idEntrada);
-                    printf("Nuevo estado (1 = Utilizada, 0 = No utilizada): ");
+                    printf("Estado (0=No utilizada, 1=Utilizada, 2=Anulada, 3=Vencida): ");
                     scanf("%d", &nuevoEstado);
                     modificarEstadoEntrada(parque, vis->visitante, idEntrada, nuevoEstado);
                 } else {
