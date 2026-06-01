@@ -1497,7 +1497,7 @@ void menuPrincipal(struct Parque *parque, int *contadorIdEntrada) {
 
         switch (opcion) {
             case 1:
-                menuVisitantes(parque);
+                menuVisitantes(parque, contadorIdEntrada);
                 break;
             case 2:
                 menuFamilias(parque);
