@@ -123,9 +123,9 @@ struct Parque *abrirParque(char *nombre, char *fecha, int maxCapacidad, int maxZ
   parqueCreado->totalEntradasVendidas = 0;
   parqueCreado->totalEntradasUtilizadas = 0;
   parqueCreado->ingresosTotales = 0.0;
-    parqueCreado->maxZonas = maxZonas; /*fijo*/ 
-    parqueCreado->cantZonas = 0; /*pLibre=0*/
-    parqueCreado->zonas = (struct Zona**)malloc(maxZonas*sizeof(struct Zona*));
+  parqueCreado->maxZonas = maxZonas; /*fijo*/ 
+  parqueCreado->cantZonas = 0; /*pLibre=0*/
+  parqueCreado->zonas = (struct Zona**)malloc(maxZonas*sizeof(struct Zona*));
   parqueCreado->raizVisitantes = NULL;
   parqueCreado->listaFamilias = NULL;
 
@@ -570,6 +570,31 @@ void eliminarFamilia(struct Parque *parque, char *rutBuscado) {
     }
 
     printf("\nFamilia no encontrada\n");
+}
+
+void listarFamilias(struct Parque *parque){
+    struct NodoFamilia *actual;
+
+    if (parque == NULL) return;
+
+    printf("\nFamilias registradas\n");
+
+    /* si es NULL retornamos este mensaje*/
+    if (parque->listaFamilias == NULL){
+        printf("No hay familias registradas en el parque actualmente.\n");
+        return;
+    }
+
+    /* de lo contrario al actual lo dejamos de head*/
+    actual = parque->listaFamilias;
+
+    /* recorrido hasta encontrar nodo NULL */
+    while(actual != NULL){
+        printf("Familia: %s | RUT Responsable: %s | Integrantes: %d\n",actual->familia->apellidoFamilia, actual->familia->rutResponsableFamiliar, actual->familia->cantidadIntegrantes);
+        
+        /* pasamos al siguiente nodo */
+        actual = actual->sig;
+    }
 }
 
 /*====================================== Atracciones ==============================================================*/
