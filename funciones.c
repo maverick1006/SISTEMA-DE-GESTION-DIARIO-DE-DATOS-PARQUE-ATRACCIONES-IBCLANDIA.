@@ -1192,14 +1192,21 @@ void menuZonas(struct Parque *parque) {
                 scanf(" %[^\n]", nombre);
                 printf("Tematica: ");
                 scanf(" %[^\n]", tematica);
-                printf("Hora apertura: ");
-                scanf("%d",&apertura.hora);
-                printf("Hora cierre: ");
-                scanf("%d",&cierre.hora);
+                printf("Hora apertura (0-23): ");
+                scanf("%d", &apertura.hora);
+                printf("Minuto apertura (0-59): ");
+                scanf("%d", &apertura.minuto);
+                printf("Temporada (A = Alta / B = Baja): ");
+                scanf(" %c", &apertura.temporada);
 
-                apertura.minuto = 0;
-                cierre.minuto = 0;
-
+                printf("Hora cierre en formato (0-23): ");
+                scanf("%d", &cierre.hora);
+                printf("Minuto cierre en formato (0-59): ");
+                scanf("%d", &cierre.minuto);
+                
+                /* misma temporda de apertura por defecto */
+                cierre.temporada = apertura.temporada;
+                
                 printf("Encargados: ");
                 scanf("%d",&encargados);
                 printf("Capacidad: ");
